@@ -1,15 +1,19 @@
 <div class="scan-container">
   <mat-card class="scanner-card">
     <ng-container *ngIf="!escaneando && !facturaData">
-      <h2>Escanear factura o guía</h2>
-      <button mat-raised-button color="primary" (click)="escaneando = true">
+      <h2 style="color: orange">Escanear factura o guía</h2>
+      <button
+        mat-raised-button
+        (click)="escaneando = true"
+        style="color: orange"
+      >
         <mat-icon>qr_code_scanner</mat-icon>
         Iniciar escaneo
       </button>
     </ng-container>
 
     <ng-container *ngIf="escaneando && !facturaData">
-      <h2>Escaneando...</h2>
+      <h2 style="color: orange">Escaneando...</h2>
 
       <mat-form-field appearance="fill" *ngIf="devices.length > 0">
         <mat-label>Selecciona una cámara</mat-label>
@@ -24,6 +28,7 @@
         [device]="selectedDevice"
         (camerasFound)="onCamerasFound($event)"
         (scanSuccess)="onCodeResult($event)"
+        [formats]="allowedFormats"
       >
       </zxing-scanner>
 
@@ -35,18 +40,21 @@
 
     <ng-container *ngIf="facturaData">
       <div class="factura-info">
-        <h3>Factura escaneada</h3>
+        <h3 style="color: orange">Factura escaneada</h3>
         <p *ngIf="facturaData.error" class="error">{{ facturaData.error }}</p>
         <ng-container *ngIf="!facturaData.error">
-          <p><strong>Número:</strong> {{ facturaData.numero }}</p>
-          <p><strong>Cliente:</strong> {{ facturaData.cliente }}</p>
-          <p><strong>Fecha:</strong> {{ facturaData.fecha }}</p>
-          <p><strong>Monto:</strong> {{ facturaData.monto }}</p>
+          <p><strong>Número:</strong> {{ facturaData.rutEmisor }}</p>
+          <p><strong>Cliente:</strong> {{ facturaData.folio }}</p>
         </ng-container>
 
-        <button mat-stroked-button color="primary" (click)="reiniciarEscaneo()">
+        <button
+          mat-stroked-button
+          style="color: orange"
+          matTooltip="Escanear otra factura o guía"
+          (click)="reiniciarEscaneo()"
+        >
           <mat-icon>qr_code</mat-icon>
-          Escanear otra
+          Escanear
         </button>
       </div>
     </ng-container>

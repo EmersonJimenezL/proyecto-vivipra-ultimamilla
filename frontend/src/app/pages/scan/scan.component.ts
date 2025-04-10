@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { HttpClient } from '@angular/common/http';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import { BarcodeFormat } from '@zxing/library';
 
 @Component({
   selector: 'app-scan',
@@ -22,6 +23,14 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './scan.component.scss',
 })
 export class ScanComponent {
+  allowedFormats = [
+    BarcodeFormat.QR_CODE,
+    BarcodeFormat.EAN_13,
+    BarcodeFormat.CODE_128,
+    BarcodeFormat.DATA_MATRIX,
+    BarcodeFormat.PDF_417,
+  ];
+
   scannedCode: string | null = null;
   facturaData: any;
   hasScanned = false;
@@ -31,6 +40,8 @@ export class ScanComponent {
   loading = true;
 
   escaneando = false;
+
+  scannedResult: string = '';
 
   constructor(private http: HttpClient) {}
 
@@ -47,6 +58,17 @@ export class ScanComponent {
     this.hasScanned = true;
     this.scannedCode = result;
     this.buscarFactura(result);
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(result, 'text/xml');
+
+    const rutEmisor = xmlDoc.getElementsByTagName('RE')[0]?.textContent;
+    const tipoDoc = xmlDoc.getElementsByTagName('TD')[0]?.textContent;
+    const folio = xmlDoc.getElementsByTagName('F')[0]?.textContent;
+    const fechaEmision = xmlDoc.getElementsByTagName('FE')[0]?.textContent;
+    const razonSocial = xmlDoc.getElementsByTagName('RS')[0]?.textContent;
+
+    console.log({ rutEmisor, tipoDoc, folio, fechaEmision, razonSocial });
   }
 
   buscarFactura(codigo: string) {

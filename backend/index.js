@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   res.send("Servidor backend funcionando");
 });
 
-// 🚀 Ruta de login
+// Ruta de login
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
