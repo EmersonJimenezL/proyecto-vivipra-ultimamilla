@@ -1,30 +1,75 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
+import { HttpClient } from '@angular/common/http';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-scan',
   standalone: true,
-  imports: [CommonModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    ZXingScannerModule,
+    MatButtonModule,
+    MatCardModule,
+    MatSelectModule,
+    MatIconModule,
+  ],
   templateUrl: './scan.component.html',
   styleUrl: './scan.component.scss',
 })
 export class ScanComponent {
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
+  scannedCode: string | null = null;
+  facturaData: any;
+  hasScanned = false;
+  devices: MediaDeviceInfo[] = [];
+  selectedDevice: MediaDeviceInfo | undefined;
 
-  logout() {
-    this.authService.logout();
-    this.snackBar.open('Sesión cerrada con éxito.', 'Ok', {
-      duration: 2500,
-      panelClass: ['snackbar-info'],
+  loading = true;
+
+  escaneando = false;
+
+  constructor(private http: HttpClient) {}
+
+  onCamerasFound(devices: MediaDeviceInfo[]) {
+    this.devices = devices;
+    if (devices.length > 0) {
+      this.selectedDevice = devices[0];
+    }
+    this.loading = false;
+  }
+
+  onCodeResult(result: string) {
+    if (this.hasScanned) return;
+    this.hasScanned = true;
+    this.scannedCode = result;
+    this.buscarFactura(result);
+  }
+
+  buscarFactura(codigo: string) {
+    this.http.get(`http://localhost:3000/factura/${codigo}`).subscribe({
+      next: (res) => (this.facturaData = res),
+      error: (err) => {
+        console.error('Error al obtener datos:', err);
+        this.facturaData = { error: 'No se encontró la factura' };
+      },
     });
-    this.router.navigate(['/login']);
+  }
+
+  reiniciarEscaneo() {
+    this.escaneando = true;
+    this.hasScanned = false;
+    this.facturaData = null;
+    this.scannedCode = null;
+  }
+
+  cancelarEscaneo() {
+    this.escaneando = false;
+    this.hasScanned = false;
+    this.scannedCode = null;
+    this.facturaData = null;
   }
 }

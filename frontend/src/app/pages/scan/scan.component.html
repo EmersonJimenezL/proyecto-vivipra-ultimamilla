@@ -1,7 +1,54 @@
 <div class="scan-container">
-  <h2>Página de escaneo</h2>
+  <mat-card class="scanner-card">
+    <ng-container *ngIf="!escaneando && !facturaData">
+      <h2>Escanear factura o guía</h2>
+      <button mat-raised-button color="primary" (click)="escaneando = true">
+        <mat-icon>qr_code_scanner</mat-icon>
+        Iniciar escaneo
+      </button>
+    </ng-container>
 
-  <button mat-raised-button color="warn" (click)="logout()">
-    Cerrar sesión
-  </button>
+    <ng-container *ngIf="escaneando && !facturaData">
+      <h2>Escaneando...</h2>
+
+      <mat-form-field appearance="fill" *ngIf="devices.length > 0">
+        <mat-label>Selecciona una cámara</mat-label>
+        <mat-select [(value)]="selectedDevice">
+          <mat-option *ngFor="let device of devices" [value]="device">
+            {{ device.label || "Cámara " + device.deviceId }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <zxing-scanner
+        [device]="selectedDevice"
+        (camerasFound)="onCamerasFound($event)"
+        (scanSuccess)="onCodeResult($event)"
+      >
+      </zxing-scanner>
+
+      <button mat-stroked-button color="warn" (click)="cancelarEscaneo()">
+        <mat-icon>arrow_back</mat-icon>
+        Cancelar
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="facturaData">
+      <div class="factura-info">
+        <h3>Factura escaneada</h3>
+        <p *ngIf="facturaData.error" class="error">{{ facturaData.error }}</p>
+        <ng-container *ngIf="!facturaData.error">
+          <p><strong>Número:</strong> {{ facturaData.numero }}</p>
+          <p><strong>Cliente:</strong> {{ facturaData.cliente }}</p>
+          <p><strong>Fecha:</strong> {{ facturaData.fecha }}</p>
+          <p><strong>Monto:</strong> {{ facturaData.monto }}</p>
+        </ng-container>
+
+        <button mat-stroked-button color="primary" (click)="reiniciarEscaneo()">
+          <mat-icon>qr_code</mat-icon>
+          Escanear otra
+        </button>
+      </div>
+    </ng-container>
+  </mat-card>
 </div>
