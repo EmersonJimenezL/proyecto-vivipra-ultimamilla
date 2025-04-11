@@ -12,7 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router'; // solo si querés redirigir
+import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
@@ -42,31 +42,24 @@ export class LoginComponent {
     private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      nombre_usuario: ['', Validators.required],
+      contrasenna: ['', Validators.required],
     });
   }
 
-  OnSubmit() {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
+  // onSubmit() {
+  //   if (this.loginForm.valid) {
+  //     const { nombre_usuario, contrasenna } = this.loginForm.value;
 
-      this.authService.login(email, password).subscribe({
-        next: () => {
-          console.log('Login exitoso');
-          this.router.navigate(['/scan']); // o cualquier ruta
-        },
-        error: (err) => {
-          this.snackBar.open(
-            'Credenciales inválidas. Intenta de nuevo.',
-            'Cerrar',
-            {
-              duration: 3000,
-              panelClass: ['snackbar-error'],
-            }
-          );
-        },
-      });
-    }
-  }
+  //     this.authService.login(nombre_usuario, contrasenna).subscribe({
+  //       next: () => this.router.navigate(['/available-view']),
+  //       error: () => {
+  //         this.snackBar.open('Credenciales incorrectas.', 'Cerrar', {
+  //           duration: 3000,
+  //           panelClass: ['snackbar-error'],
+  //         });
+  //       },
+  //     });
+  //   }
+  // }
 }

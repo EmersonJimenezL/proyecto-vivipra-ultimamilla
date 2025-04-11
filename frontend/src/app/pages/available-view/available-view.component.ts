@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-available-view',
@@ -11,20 +12,32 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './available-view.component.scss',
 })
 export class AvailableViewComponent {
-  displayedColumns: string[] = ['numero', 'fecha', 'producto', 'accion'];
+  constructor(private authService: AuthService) {}
 
-  // Simulación temporal
-  dataSource = [
-    { numero: 'FAC001', fecha: '2025-04-10', producto: 'Producto A' },
-    { numero: 'FAC002', fecha: '2025-04-09', producto: 'Producto B' },
+  displayedColumns: string[] = [
+    'FolioNum',
+    'CodCliente',
+    'NombreCliente',
+    'FechaDocumento',
+    'HoraCreacion',
+    'Articulo',
+    'Cantidad',
   ];
 
-  listosParaDespacho: any[] = [];
+  data: any = [];
 
-  agregarADespacho(factura: any) {
-    if (!this.listosParaDespacho.find((f) => f.numero === factura.numero)) {
-      this.listosParaDespacho.push(factura);
-      console.log('Agregado a despacho:', factura);
-    }
+  ngOnInit(): void {
+    this.authService.getData().subscribe({
+      next: (data) => {
+        this.data = data;
+      },
+      error: (error) => {
+        console.error('Error al obtener datos:', error);
+      },
+    });
+  }
+
+  agregarADespacho() {
+    console.log('Agregar a despacho');
   }
 }

@@ -1,10 +1,16 @@
 <div class="login-container">
   <mat-card class="login-card">
     <h1 class="login-title">Iniciar sesión</h1>
-    <form [formGroup]="loginForm" (ngSubmit)="OnSubmit()">
+    <form [formGroup]="loginForm">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" required />
+        <input
+          matInput
+          formControlName="email"
+          type="email"
+          required
+          style="color: black"
+        />
         <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
           El correo es obligatorio
         </mat-error>
@@ -20,6 +26,7 @@
           [type]="hidePassword ? 'password' : 'text'"
           formControlName="password"
           required
+          style="color: black"
         />
         <button
           mat-icon-button
@@ -42,7 +49,6 @@
         class="full-width"
         type="submit"
         [disabled]="loginForm.invalid"
-        style="color: orange"
       >
         Iniciar sesión
       </button>

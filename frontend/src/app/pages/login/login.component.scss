@@ -13,13 +13,20 @@
   padding: 2rem;
   border-radius: 1.5rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+
+  @media (max-width: 480px) {
+    padding: 1.5rem 1rem;
+    border-radius: 1rem;
+  }
 }
 
 .login-title {
   text-align: center;
   font-size: 1.8rem;
+  font-weight: 600;
   margin-bottom: 1.5rem;
-  color: orange;
+  color: #ff9800; // naranja material
 }
 
 .full-width {

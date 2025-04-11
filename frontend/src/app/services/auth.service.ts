@@ -6,19 +6,24 @@ import { Observable, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = 'http://localhost:3000/api/auth';
+  private endPoint = 'http://192.168.200.80:3000/data/FactDespacho';
 
   constructor(private http: HttpClient) {}
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, { email, password }).pipe(
-      tap((res: any) => {
-        if (res.token) {
-          localStorage.setItem('token', res.token);
-        }
-      })
-    );
+  getData(): Observable<any> {
+    return this.http.get(this.endPoint);
   }
+
+  // login(nombre_usuario: string, contrasenna: string): Observable<any> {
+  //   return this.http.get(`${this.apiUrl}/login`).pipe(
+  //     tap((res: any) => {
+  //       if (res.token) {
+  //         localStorage.setItem('token', res.token);
+  //       }
+  //     })
+  //   );
+  // }
 
   logout() {
     localStorage.removeItem('token');
