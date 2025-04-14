@@ -6,13 +6,16 @@ import { Observable, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
   private endPoint = 'http://192.168.200.80:3000/data/FactDespacho';
 
   constructor(private http: HttpClient) {}
 
   getData(): Observable<any> {
     return this.http.get(this.endPoint);
+  }
+
+  getDataById(id: number): Observable<any> {
+    return this.http.get(`${this.endPoint}/${id}`);
   }
 
   // login(nombre_usuario: string, contrasenna: string): Observable<any> {
