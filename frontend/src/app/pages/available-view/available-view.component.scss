@@ -1,15 +1,55 @@
-.tabla-container {
-  padding: 1rem;
-  max-width: 100%;
-  overflow-x: auto;
+// Estilos para la barra de busqueda
+.search-bar-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  padding: 0 16px;
+}
 
-  h2 {
-    margin-bottom: 1rem;
-    text-align: center;
+.search-field {
+  width: 100%;
+  max-width: 500px;
+  background: white;
+  border-radius: 12px;
+}
+
+:host {
+  // El metodo ng-deep es una forma de aplicar estilos a componentes hijos en Angular Material
+  // que no tienen un selector específico para el estilo deseado.
+  // Aun que actualmente se encuentra deprecado, se puede seguir utilizando.
+  // Se recomienda usarlo con precaución y considerar alternativas en el futuro.
+  // https://angular.io/guide/component-styles#deprecated-ng-deep
+  // a dia de hoy (2023-10-01) no hay una alternativa oficial para reemplazarlo.
+  // por lo que se recomienda usarlo solo si es necesario y no hay otra opción.
+  ::ng-deep .mat-form-field-outline {
+    border-color: #ccc;
+    border-radius: 12px;
+  }
+
+  ::ng-deep .mat-form-field-outline-thick {
+    border-color: #ff9800 !important; // Naranja moderno
+  }
+
+  ::ng-deep .mat-input-element {
     color: #333;
+  }
+
+  ::ng-deep .mat-form-field-label {
+    color: #888;
+  }
+
+  ::ng-deep
+    .mat-form-field-appearance-outline.mat-focused
+    .mat-form-field-outline-thick {
+    border-color: #ff9800;
+  }
+
+  ::ng-deep .mat-icon {
+    color: #ff9800;
   }
 }
 
+// Estilos para la tabla de datos
 table {
   width: 100%;
   border-radius: 0.5rem;
@@ -43,7 +83,7 @@ table {
   }
 }
 
-/* 📱 Responsive */
+/* Responsive */
 @media (max-width: 600px) {
   .tabla-container {
     padding: 0.5rem;

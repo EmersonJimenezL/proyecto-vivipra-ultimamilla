@@ -6,18 +6,31 @@ import { Observable, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
-  private endPoint = 'http://192.168.200.80:3000/data/FactDespacho';
+  // Se define el endpoint, en la cual inyectaremos los datos obtenidos desde el endpointget junto con los datos modificados
+  private endPointPost = 'http://192.168.200.80:3005/despachos';
 
+  // Se define el endpoint para obtener los datos de la API
+  private endPointGet = 'http://192.168.200.80:3000/data/FactDespacho';
+
+  // inyectar el servicio HttpClient en el constructor
   constructor(private http: HttpClient) {}
 
+  // método para obtener los datos de la API, con este mismo metodo y la implementacion de la tala que nos brinda angular material
+  // podemos crear la vista que nos trae todos los datos de la API y ademas implementar un buscador y paginacion
   getData(): Observable<any> {
-    return this.http.get(this.endPoint);
+    return this.http.get(this.endPointGet);
   }
 
-  getDataById(id: number): Observable<any> {
-    return this.http.get(`${this.endPoint}/${id}`);
+  // método para enviar datos a la API, este método se utiliza para enviar los datos modificados desde la tabla a la API
+  // Se utiliza el método post de HttpClient para enviar los datos al endpoint definido en endPointPost
+  saveData(data: any): Observable<any> {
+    return this.http.post(this.endPointPost, data);
   }
 
+  // estas fuuncionalidades estaran destinadas al login de la pagina
+  // #######################################################################
+  // #######################################################################
+  // #######################################################################
   // login(nombre_usuario: string, contrasenna: string): Observable<any> {
   //   return this.http.get(`${this.apiUrl}/login`).pipe(
   //     tap((res: any) => {
