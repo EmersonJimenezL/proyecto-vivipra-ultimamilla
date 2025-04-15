@@ -46,7 +46,11 @@ export class AvailableViewComponent implements OnInit {
     'Cantidad',
   ];
 
+  // dataSource es la fuente de datos para la tabla Se inicializa como un array vacío para evitar errores al inicio
+  // y luego se llena con los datos obtenidos de la API
   dataSource = new MatTableDataSource<any>([]);
+  // selection es el modelo de selección para la tabla se inicializa con la opción de selección múltiple
+  // y un array vacío para almacenar los elementos seleccionados
   selection = new SelectionModel<any>(true, []);
 
   // Agregamos esta propiedad para almacenar los folios de despachos existentes

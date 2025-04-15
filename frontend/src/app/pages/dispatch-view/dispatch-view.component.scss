@@ -1,33 +1,12 @@
-// Estilos para la barra de busqueda
-.search-bar-container {
-  display: flex;
-  justify-content: space-between;
-  margin: 5px 0;
-  padding: 0 16px;
-}
-
-.search-field {
-  width: 100%;
-  max-width: 500px;
-  background: white;
-  border-radius: 12px;
-}
-
+/* Estilos base y de búsqueda */
 :host {
-  // El metodo ng-deep es una forma de aplicar estilos a componentes hijos en Angular Material
-  // que no tienen un selector específico para el estilo deseado.
-  // Aun que actualmente se encuentra deprecado, se puede seguir utilizando.
-  // Se recomienda usarlo con precaución y considerar alternativas en el futuro.
-  // https://angular.io/guide/component-styles#deprecated-ng-deep
-  // a dia de hoy (2023-10-01) no hay una alternativa oficial para reemplazarlo.
-  // por lo que se recomienda usarlo solo si es necesario y no hay otra opción.
   ::ng-deep .mat-form-field-outline {
     border-color: #ccc;
     border-radius: 12px;
   }
 
   ::ng-deep .mat-form-field-outline-thick {
-    border-color: #ff9800 !important; // Naranja moderno
+    border-color: #ff9800 !important;
   }
 
   ::ng-deep .mat-input-element {
@@ -49,56 +28,102 @@
   }
 }
 
-// Estilos para la tabla de datos
-table {
+.responsive-container {
+  padding: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.search-bar-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.search-field {
+  width: 100%;
+  max-width: 500px;
+  background: white;
+  border-radius: 12px;
+}
+
+/* Estilos tabla escritorio */
+.desktop-view table {
   width: 100%;
   border-radius: 0.5rem;
   overflow: hidden;
   border-collapse: collapse;
-
-  th {
-    background-color: #424242;
-    color: #fff;
-    font-weight: 600;
-    text-align: left;
-    padding: 0.75rem;
-  }
-
-  td {
-    padding: 0.75rem;
-    font-size: 0.95rem;
-    color: #000;
-  }
-
-  tr:nth-child(even) td {
-    background-color: #f5f5f5;
-  }
-
-  tr:nth-child(odd) td {
-    background-color: #ffffff;
-  }
-
-  button {
-    font-weight: 500;
-  }
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .tabla-container {
-    padding: 0.5rem;
+.desktop-view th {
+  background-color: #424242;
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem;
+}
+
+.desktop-view td {
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  color: #000;
+}
+
+.desktop-view tr:nth-child(even) td {
+  background-color: #f5f5f5;
+}
+
+.desktop-view tr:nth-child(odd) td {
+  background-color: #ffffff;
+}
+
+.desktop-view button {
+  font-weight: 500;
+}
+
+/* Vista tarjetas móviles/tablets */
+.mobile-list {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .desktop-view {
+    display: none !important;
   }
 
-  table {
-    font-size: 0.85rem;
+  .mobile-list {
+    display: block;
+  }
 
-    th,
-    td {
-      padding: 0.5rem;
-    }
+  .mobile-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff9800;
+    transition: box-shadow 0.3s;
+  }
 
-    h2 {
-      font-size: 1.25rem;
-    }
+  .mobile-card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .mobile-card-header {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+  }
+
+  .mobile-card-details {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .mobile-card-details div {
+    margin-bottom: 4px;
   }
 }
