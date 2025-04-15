@@ -12,6 +12,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatSort, MatSortModule } from '@angular/material/sort';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-available-view',
@@ -34,7 +35,6 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
   styleUrl: './available-view.component.scss',
 })
 export class AvailableViewComponent implements OnInit {
-  // definición de las columnas que se mostrarán en la tabla.
   displayedColumns: string[] = [
     'select',
     'FolioNum',
@@ -46,44 +46,42 @@ export class AvailableViewComponent implements OnInit {
     'Cantidad',
   ];
 
-  // dataSource, instancia de MatTableDataSource, clase de Angular Material, permite manejar los datos de la tabla
-  // y proporciona funcionalidades como paginación, filtrado y ordenamiento.
-  // La propiedad dataSource es un arreglo de objetos que representan los datos que se mostrarán en la tabla.
-  // En este caso, se inicializa como un arreglo vacío.
-  // su funcionalidad es permitir la paginación y el filtrado de los datos en la tabla.
-  // con la intencion de que la tabla sea más fácil de usar y navegar.
   dataSource = new MatTableDataSource<any>([]);
-
-  // selection es una instancia de SelectionModel, que permite manejar la selección de filas en la tabla.
-  // En este caso, se inicializa como un arreglo vacío.
-  // su funcionalidad es permitir seleccionar varias filas a la vez, lo que es útil para realizar acciones en grupo.
-  // con la intencion de que el usuario pueda seleccionar varias filas a la vez y realizar acciones en grupo.
   selection = new SelectionModel<any>(true, []);
 
-  // paginator es una referencia a un componente de paginación de Angular Material.
-  // Se utiliza para manejar la paginación de la tabla, se inicializa como un objeto de tipo MatPaginator.
-  // su funcionalidad es permitir la paginación de los datos en la tabla, lo que es útil para manejar grandes cantidades de datos.
-  // con la intencion de que la tabla sea más fácil de usar y navegar.
-  // el decorador @ViewChild se utiliza para obtener una referencia al componente de paginación en el template.
-  // Esto permite acceder a la instancia del componente de paginación y configurarlo desde el componente de TypeScript.
-  // su funcionalidad es permitir la paginación de los datos en la tabla, lo que es útil para manejar grandes cantidades de datos.
-  // con la intencion de que la tabla sea más fácil de usar y navegar.
+  // Agregamos esta propiedad para almacenar los folios de despachos existentes
+  despachosExistentes: Set<string> = new Set();
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // Se inyecta el servicio AuthService en el constructor del componente.
-  // Esto permite acceder a los métodos y propiedades del servicio desde el componente.
   constructor(private authService: AuthService) {}
 
-  //ngOnInit es un ciclo de vida de Angular que se ejecuta una vez que el componente ha sido inicializado.
-  // En este caso, se utiliza para obtener los datos de la API y asignarlos a la propiedad dataSource de la tabla.
-  // Se utiliza el servicio AuthService para hacer la llamada a la API y obtener los datos.
-  // Se utiliza el método subscribe para manejar la respuesta de la API.
-  // next es una función que se ejecuta cuando la llamada a la API es exitosa y recibe los datos como parámetro.
-  // error es una función que se ejecuta cuando la llamada a la API falla y recibe el error como parámetro.
   ngOnInit(): void {
+    // Primero obtenemos los despachos existentes y luego los datos de la vista
+    this.chargeData();
+  }
+
+  chargeData(): void {
+    // Obtenemos los despachos existentes
+    this.authService.getDataDispatch().subscribe({
+      next: (despachos) => {
+        // Creamos un conjunto de folios para búsqueda eficiente
+        this.despachosExistentes = new Set(
+          despachos.map((despacho: any) => despacho.folio)
+        );
+
+        // Ahora obtenemos los datos de la vista
+        this.getDataView();
+      },
+      error: (error) => console.error('Error al obtener despachos:', error),
+    });
+  }
+
+  getDataView(): void {
     this.authService.getData().subscribe({
       next: (data) => {
+        // Procesamiento existente de fechas
         data.forEach((item: any) => {
           // Convertir FechaDocumento a Date
           const fecha = new Date(item.FechaDocumento);
@@ -103,9 +101,15 @@ export class AvailableViewComponent implements OnInit {
           item._fechaHoraCompleta = fecha;
         });
 
-        this.dataSource = new MatTableDataSource(data);
+        // NUEVO: Filtrar para mostrar solo los elementos que no están en despacho
+        const datosFiltrados = data.filter(
+          (item: any) => !this.despachosExistentes.has(item.FolioNum)
+        );
 
-        // Ordenar por la propiedad auxiliar
+        // Usar los datos filtrados para la tabla
+        this.dataSource = new MatTableDataSource(datosFiltrados);
+
+        // Configuración existente de ordenamiento
         this.dataSource.sortingDataAccessor = (item, property) => {
           if (property === 'FechaDocumento') {
             return item._fechaHoraCompleta;
@@ -130,28 +134,11 @@ export class AvailableViewComponent implements OnInit {
     });
   }
 
-  // Este método se utiliza para aplicar un filtro a los datos de la tabla.
-  // la funcion recibe un evento como parámetro, que contiene el valor del campo de búsqueda.
-  // event.target es el elemento HTML que desencadenó el evento.
-  // htmlInputElement es una interfaz que representa un elemento de entrada HTML.
-  // Se utiliza el operador as para indicar que event.target es un elemento de entrada HTML.
-  // El valor se convierte a minúsculas y se utiliza para filtrar los datos de la tabla.
-  // Se utiliza el método filter de MatTableDataSource para aplicar el filtro.
-  // su funcionalidad es permitir al usuario buscar datos en la tabla de manera más fácil y rápida.
-  // con la intencion de que el usuario pueda encontrar rápidamente los datos que está buscando.
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  // Este método se utiliza para formatear la hora en un formato legible.
-  // Se utiliza el método padStart para asegurarse de que la hora tenga 6 dígitos.
-  // Se utiliza el método parseInt para convertir la hora a un número entero.
-  // Se utiliza el método substring para extraer las horas, minutos y segundos de la cadena de texto.
-  // Se utiliza el operador ternario para determinar si se debe eliminar el cero inicial de la hora.
-  // su funcionalidad es permitir al usuario ver la hora en un formato legible.
-  // con la intencion de que el usuario pueda ver la hora en un formato legible y fácil de entender.
-  // Se utiliza el método toString para convertir la hora a una cadena de texto.
   formatTime(time: string): string {
     if (!time) return '';
 
@@ -172,48 +159,44 @@ export class AvailableViewComponent implements OnInit {
     return `${hours}:${minutes}:${seconds}`;
   }
 
-  // Este método se utiliza para determinar si todas las filas de la tabla están seleccionadas.
-  // Se utiliza la propiedad selected de SelectionModel para obtener el número de filas seleccionadas y el número total de filas.
   isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
+    const filteredData = this.dataSource.filteredData;
+    return (
+      this.selection.selected.length > 0 &&
+      filteredData.every((row) => this.selection.isSelected(row))
+    );
   }
 
-  // Este método se utiliza para seleccionar o deseleccionar todas las filas de la tabla.
-  // Se utiliza el método select de SelectionModel para seleccionar o deseleccionar todas las filas.
-  // Se utiliza el operador ternario para determinar si se deben seleccionar o deseleccionar las filas.
-  // su funcionalidad es permitir al usuario seleccionar o deseleccionar todas las filas de la tabla de manera más fácil y rápida.
-  // con la intention de que el usuario pueda seleccionar o deseleccionar todas las filas de la tabla de manera más fácil y rápida.
   toggleAllRows(event: any) {
-    event.checked
-      ? this.selection.select(...this.dataSource.data)
-      : this.selection.clear();
-  }
+    const filteredData = this.dataSource.filteredData;
 
-  // Este método se utiliza para seleccionar o deseleccionar una fila de la tabla.
-  // Se utiliza el método toggle de SelectionModel para seleccionar o deseleccionar la fila.
+    if (event.checked) {
+      this.selection.select(...filteredData);
+    } else {
+      this.selection.deselect(...filteredData);
+    }
+  }
 
   toggleRow(row: any) {
     this.selection.toggle(row);
   }
 
-  // Este método se utiliza para agregar las filas seleccionadas a un despacho.
-  // Se utiliza el método selected de SelectionModel para obtener las filas seleccionadas.
-  // Utiliza map para crear un nuevo arreglo con los datos de las filas seleccionadas y para añadir los datos adicionales
-  // Se utiliza el método saveData del servicio AuthService para enviar los datos al servidor.
-  addToDispatch() {
+  async addToDispatch() {
     const selected = this.selection.selected;
+    if (selected.length === 0) return;
 
     const hoy = new Date();
     const fechaFormateada = `${hoy.getFullYear()}-${(hoy.getMonth() + 1)
       .toString()
-      .padStart(2, '0')}-${hoy.getDate().toString().padStart(2, '0')}`; // yyyy-MM-dd
+      .padStart(2, '0')}-${hoy.getDate().toString().padStart(2, '0')}`;
 
     const horaFormateada = `${hoy.getHours().toString().padStart(2, '0')}:${hoy
       .getMinutes()
       .toString()
       .padStart(2, '0')}:${hoy.getSeconds().toString().padStart(2, '0')}`;
+
+    // Creamos un array para almacenar las promesas de las solicitudes
+    const requests: any = [];
 
     selected.forEach((item) => {
       const payload = {
@@ -232,12 +215,40 @@ export class AvailableViewComponent implements OnInit {
         estado: 'Despacho',
       };
 
-      console.log('📦 Enviando payload:', payload);
+      console.log('Enviando payload:', payload);
 
-      this.authService.saveData(payload).subscribe({
-        next: () => alert('Despacho creado correctamente'),
-        error: (err) => console.error('Error al guardar despacho:', err),
-      });
+      // Agregamos cada solicitud a nuestro array usando firstValueFrom
+      requests.push(firstValueFrom(this.authService.saveData(payload)));
     });
+
+    try {
+      // Esperamos a que todas las solicitudes se completen
+      await Promise.all(requests);
+
+      alert('Despachos creados correctamente');
+
+      // Actualizamos los folios existentes
+      selected.forEach((item) => {
+        this.despachosExistentes.add(item.FolioNum);
+      });
+
+      // Limpiamos la selección
+      this.selection.clear();
+
+      // Actualizamos la vista (filtramos los elementos que ya están en despacho)
+      this.dataSource.data = this.dataSource.data.filter(
+        (item: any) => !this.despachosExistentes.has(item.FolioNum)
+      );
+    } catch (err) {
+      console.error('Error al guardar despachos:', err);
+      alert(
+        'Hubo un error al crear los despachos. Por favor, inténtelo de nuevo.'
+      );
+    }
+  }
+
+  // Método para recargar los datos
+  recargarDatos() {
+    this.chargeData();
   }
 }

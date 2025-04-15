@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { authGuard } from './guards/auth.guard';
-import { AvailableViewComponent } from './pages/available-view/available-view.component';
+import { DispatchViewComponent } from './pages/dispatch-view/dispatch-view.component';
 
 export const routes: Routes = [
   {
@@ -26,5 +26,9 @@ export const routes: Routes = [
         (m) => m.AvailableViewComponent
       ),
     canActivate: [authGuard], //protegido por el guard
+  },
+  {
+    path: 'dispatch-view',
+    component: DispatchViewComponent,
   },
 ];

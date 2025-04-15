@@ -27,6 +27,12 @@ export class AuthService {
     return this.http.post(this.endPointPost, data);
   }
 
+  // metodo para obtener los datos de la api que se utilizo para obtener los datos de las facturas
+  // esta otra api recibe informacion inyectada desde el endpoint get y la envia al endpoint post
+  getDataDispatch(): Observable<any> {
+    return this.http.get(this.endPointPost);
+  }
+
   // estas fuuncionalidades estaran destinadas al login de la pagina
   // #######################################################################
   // #######################################################################
