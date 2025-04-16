@@ -1,29 +1,31 @@
-<!-- dispatch-view.component.html -->
 <div class="mat-elevation-z4 responsive-container">
-  <div style="display: flex; justify-content: center">
-    <img src="assets/vivipra.png" alt="vivipra" style="width: 100px" />
-  </div>
-  <!-- Barra de búsqueda y botones -->
   <div class="search-bar-container">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-icon matPrefix>search</mat-icon>
-      <input matInput (keyup)="applyFilter($event)" placeholder="Buscar" />
-    </mat-form-field>
+    <!-- logotipo -->
+    <div>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Buscar" />
+      </mat-form-field>
+    </div>
 
-    <div style="text-align: right; margin-top: 16px">
-      <button
-        mat-raised-button
-        color="accent"
-        (click)="reloadData()"
-        style="margin-right: 10px"
-      >
-        <mat-icon>refresh</mat-icon> Recargar
-      </button>
+    <div
+      style="
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        align-items: center;
+        padding: 0px 30px;
+      "
+    >
+      <!-- logotipo -->
+      <div>
+        <img src="assets/vivipra.png" alt="vivipra" style="width: 100px" />
+      </div>
     </div>
   </div>
 
   <!-- VISTA PARA ESCRITORIO -->
-  <div class="desktop-view">
+  <div class="desktop-view table-container">
     <table mat-table [dataSource]="dataSource" class="mat-table" matSort>
       <!-- Checkbox -->
       <ng-container matColumnDef="select">

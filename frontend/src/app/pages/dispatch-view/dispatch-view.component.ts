@@ -103,22 +103,15 @@ export class DispatchViewComponent implements OnInit {
     });
   }
 
+  // funciones para la expansión de filas (responsive)
   toggleExpansion(item: any) {
     this.expandedItem = this.expandedItem === item ? null : item;
   }
 
+  // funciones para la tabla
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
-  formatTime(time: string): string {
-    if (!time) return '';
-    const timeString = time.toString().padStart(6, '0');
-    const hours = parseInt(timeString.substring(0, 2), 10);
-    const minutes = timeString.substring(2, 4);
-    const seconds = timeString.substring(4, 6);
-    return `${hours}:${minutes}:${seconds}`;
   }
 
   isAllSelected() {
@@ -137,10 +130,12 @@ export class DispatchViewComponent implements OnInit {
     this.selection.toggle(row);
   }
 
+  // recarga de datos
   reloadData() {
     this.getData();
   }
 
+  // funciones para la entrega
   delivered() {
     console.log('Dispatch delivered');
   }

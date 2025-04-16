@@ -14,12 +14,6 @@ export const routes: Routes = [
     component: LoginComponent,
   },
   {
-    path: 'scan',
-    loadComponent: () =>
-      import('./pages/scan/scan.component').then((m) => m.ScanComponent),
-    canActivate: [authGuard], // protegido por el guard
-  },
-  {
     path: 'available-view',
     loadComponent: () =>
       import('./pages/available-view/available-view.component').then(

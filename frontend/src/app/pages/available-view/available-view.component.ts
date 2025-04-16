@@ -13,6 +13,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { firstValueFrom } from 'rxjs';
+import { SharedModule } from '../../shared/shared.module';
 
 @Component({
   selector: 'app-available-view',
@@ -30,6 +31,7 @@ import { firstValueFrom } from 'rxjs';
     ScrollingModule,
     MatSort,
     MatSortModule,
+    SharedModule,
   ],
   templateUrl: './available-view.component.html',
   styleUrl: './available-view.component.scss',
@@ -66,6 +68,7 @@ export class AvailableViewComponent implements OnInit {
     this.chargeData();
   }
 
+  // Método para cargar los datos de la vista y los despachos existentes
   chargeData(): void {
     // Obtenemos los despachos existentes
     this.authService.getDataDispatch().subscribe({
@@ -82,6 +85,7 @@ export class AvailableViewComponent implements OnInit {
     });
   }
 
+  // Método para obtener los datos de la vista y procesarlos
   getDataView(): void {
     this.authService.getData().subscribe({
       next: (data) => {
@@ -138,29 +142,10 @@ export class AvailableViewComponent implements OnInit {
     });
   }
 
+  // funciones para la tabla
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
-  formatTime(time: string): string {
-    if (!time) return '';
-
-    // Convertir a string si es número
-    const timeString = time.toString();
-
-    // Asegurarse de que tenga 6 dígitos (añadir ceros a la izquierda si es necesario)
-    const paddedTime = timeString.padStart(6, '0');
-
-    // Extraer horas, minutos y segundos
-    let hours = parseInt(paddedTime.substring(0, 2), 10);
-    const minutes = paddedTime.substring(2, 4);
-    const seconds = paddedTime.substring(4, 6);
-
-    // Eliminar el cero inicial de la hora si es menor que 10
-    const formattedHours = hours < 10 ? hours.toString() : hours.toString();
-
-    return `${hours}:${minutes}:${seconds}`;
   }
 
   isAllSelected() {
@@ -185,6 +170,7 @@ export class AvailableViewComponent implements OnInit {
     this.selection.toggle(row);
   }
 
+  // Método para agregar a despacho
   async addToDispatch() {
     const selected = this.selection.selected;
     if (selected.length === 0) return;
