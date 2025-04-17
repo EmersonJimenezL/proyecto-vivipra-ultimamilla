@@ -44,8 +44,8 @@ export class AvailableViewComponent implements OnInit {
     'NombreCliente',
     'FechaDocumento',
     'HoraCreacion',
-    'Articulo',
-    'Cantidad',
+    'Direccion',
+    'Comentarios',
   ];
 
   // dataSource es la fuente de datos para la tabla Se inicializa como un array vacío para evitar errores al inicio
@@ -107,9 +107,11 @@ export class AvailableViewComponent implements OnInit {
 
           // Guardar como propiedad auxiliar para ordenar
           item._fechaHoraCompleta = fecha;
+
+          console.log(data);
         });
 
-        // NUEVO: Filtrar para mostrar solo los elementos que no están en despacho
+        //Filtrar para mostrar solo los elementos que no están en despacho
         const datosFiltrados = data.filter(
           (item: any) => !this.despachosExistentes.has(item.FolioNum)
         );

@@ -1,1 +1,56 @@
 @use "../../shared/scss/shared-styles.scss" as *;
+
+/* Vista tarjetas móviles/tablets */
+.mobile-list {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .desktop-view {
+    display: none !important;
+    padding: none;
+    margin: none;
+    overflow: hidden;
+  }
+
+  .mobile-list {
+    display: block;
+  }
+
+  .mobile-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff9800;
+    transition: box-shadow 0.3s;
+  }
+
+  .mobile-card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .mobile-card-header {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+  }
+
+  .mobile-card-details {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .mobile-card-details div {
+    margin-bottom: 4px;
+  }
+  .search-bar-container {
+    padding: 0;
+  }
+
+  .dButton {
+    margin-top: 0.6rem;
+  }
+}

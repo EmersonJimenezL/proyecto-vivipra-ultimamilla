@@ -6,31 +6,33 @@ import { Observable, tap } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
-  // Se define el endpoint, en la cual inyectaremos los datos obtenidos desde el endpointget junto con los datos modificados
-  private endPointPost = 'http://192.168.200.80:3005/despachos';
+  // Se una variable con la url de la API conectada con MongoDB
+  private endPointMongo = 'http://192.168.200.80:3005/despachos';
 
-  // Se define el endpoint para obtener los datos de la API
-  private endPointGet = 'http://192.168.200.80:3000/data/FactDespacho';
+  // Se una variable con la url de la vista conectada con SAPHanna
+  private endPointView = 'http://192.168.200.80:3000/data/FactDespacho';
 
   // inyectar el servicio HttpClient en el constructor
   constructor(private http: HttpClient) {}
 
-  // método para obtener los datos de la API, con este mismo metodo y la implementacion de la tala que nos brinda angular material
-  // podemos crear la vista que nos trae todos los datos de la API y ademas implementar un buscador y paginacion
+  // metodo para obtener los datos de la vista creada en SAPHanna
   getData(): Observable<any> {
-    return this.http.get(this.endPointGet);
+    return this.http.get(this.endPointView);
   }
 
-  // método para enviar datos a la API, este método se utiliza para enviar los datos modificados desde la tabla a la API
-  // Se utiliza el método post de HttpClient para enviar los datos al endpoint definido en endPointPost
+  // metodo para inyectar datos a la API conectada con MongoDB
   saveData(data: any): Observable<any> {
-    return this.http.post(this.endPointPost, data);
+    return this.http.post(this.endPointMongo, data);
   }
 
-  // metodo para obtener los datos de la api que se utilizo para obtener los datos de las facturas
-  // esta otra api recibe informacion inyectada desde el endpoint get y la envia al endpoint post
+  // metodo para obtener los datos de la API conectada con MongoDB
   getDataDispatch(): Observable<any> {
-    return this.http.get(this.endPointPost);
+    return this.http.get(this.endPointMongo);
+  }
+
+  // metodo para actualizar los campos faltantes de la API conectada con MongoDB
+  setDataDistpatch(data: any): Observable<any> {
+    return this.http.patch(this.endPointMongo, data);
   }
 
   // estas fuuncionalidades estaran destinadas al login de la pagina

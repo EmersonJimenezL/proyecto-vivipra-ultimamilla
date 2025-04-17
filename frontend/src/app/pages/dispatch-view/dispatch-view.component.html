@@ -14,7 +14,7 @@
         justify-content: flex-end;
         width: 100%;
         align-items: center;
-        padding: 0px 30px;
+        padding: 0px 20px;
       "
     >
       <!-- logotipo -->
@@ -47,19 +47,9 @@
 
       <ng-container matColumnDef="folio">
         <th mat-header-cell *matHeaderCellDef>Folio</th>
-        <td mat-cell *matCellDef="let despacho">{{ despacho.folio }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="fechaDespacho">
-        <th mat-header-cell *matHeaderCellDef>Fecha despacho</th>
-        <td mat-cell *matCellDef="let despacho">
-          {{ despacho.fechaDespacho | date : "dd/MM/yy" }}
+        <td mat-cell *matCellDef="let despacho" id="folio">
+          {{ despacho.folio }}
         </td>
-      </ng-container>
-
-      <ng-container matColumnDef="horaDespacho">
-        <th mat-header-cell *matHeaderCellDef>Hora despacho</th>
-        <td mat-cell *matCellDef="let despacho">{{ despacho.horaDespacho }}</td>
       </ng-container>
 
       <ng-container matColumnDef="nombreCliente">
@@ -74,30 +64,43 @@
         <td mat-cell *matCellDef="let despacho">{{ despacho.rutCliente }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="codigoArticulo">
-        <th mat-header-cell *matHeaderCellDef>Código artículo</th>
+      <ng-container matColumnDef="fechaDespacho">
+        <th mat-header-cell *matHeaderCellDef>Fecha despacho</th>
         <td mat-cell *matCellDef="let despacho">
-          {{ despacho.articulos[0]?.codigo }}
+          {{ despacho.fechaDespacho | date : "dd/MM/yy" }}
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="nombreArticulo">
-        <th mat-header-cell *matHeaderCellDef>Nombre artículo</th>
-        <td mat-cell *matCellDef="let despacho">
-          {{ despacho.articulos[0]?.nombre }}
+      <ng-container matColumnDef="horaDespacho">
+        <th mat-header-cell *matHeaderCellDef>Hora despacho</th>
+        <td mat-cell *matCellDef="let despacho">{{ despacho.horaDespacho }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="Direccion">
+        <th mat-header-cell *matHeaderCellDef>Direccion</th>
+        <td mat-cell *matCellDef="let usuario">
+          {{ usuario.Destino }}: {{ usuario.Direccion }}
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="cantidad">
-        <th mat-header-cell *matHeaderCellDef>Cantidad</th>
-        <td mat-cell *matCellDef="let despacho">
-          {{ despacho.articulos[0]?.cantidad }}
-        </td>
+      <ng-container matColumnDef="comentarios">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let despacho">{{ despacho.comentarios }}</td>
       </ng-container>
 
       <ng-container matColumnDef="estado">
         <th mat-header-cell *matHeaderCellDef>Estado</th>
         <td mat-cell *matCellDef="let despacho">{{ despacho.estado }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="Entrega">
+        <th mat-header-cell *matHeaderCellDef>Entregar</th>
+
+        <td mat-cell *matCellDef="let despacho">
+          <button class="dButton" mat-button (click)="delivered(despacho)">
+            Entregar
+          </button>
+        </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -106,7 +109,7 @@
 
     <mat-paginator
       [pageSize]="8"
-      [pageSizeOptions]="[25]"
+      [pageSizeOptions]="[10, 15, 20]"
       showFirstLastButtons
     ></mat-paginator>
   </div>
@@ -119,25 +122,35 @@
       (click)="despacho.expanded = !despacho.expanded"
     >
       <div>
-        <strong>{{ despacho.folio }}</strong>
+        <strong>{{ despacho.folio }} - </strong>
         {{ despacho.nombreCliente }}
       </div>
       <div class="mobile-card-details" *ngIf="despacho.expanded">
-        <div><strong>Fecha despacho:</strong> {{ despacho.fechaDespacho }}</div>
-        <div><strong>Hora despacho:</strong> {{ despacho.horaDespacho }}</div>
+        <div id="folio">
+          <strong>Folio:</strong>
+          {{ despacho.folio }}
+        </div>
         <div><strong>RUT Cliente:</strong> {{ despacho.rutCliente }}</div>
         <div>
-          <strong>Código Artículo:</strong> {{ despacho.articulos[0]?.codigo }}
+          <strong>Fecha despacho:</strong>
+          {{ despacho.fechaDespacho | date : "dd/mm/yy" }}
         </div>
         <div>
-          <strong>Nombre Artículo:</strong> {{ despacho.articulos[0]?.nombre }}
+          <strong>Hora despacho:</strong>
+          {{ despacho.horaDespacho }}
         </div>
         <div>
-          <strong>Cantidad:</strong> {{ despacho.articulos[0]?.cantidad }}
+          <strong>Direccion:</strong> {{ despacho.Destino }}:
+          {{ despacho.Direccion }}
         </div>
+        <div><strong>Comentario:</strong>{{ despacho.comentarios }}</div>
         <div><strong>Estado:</strong> {{ despacho.estado }}</div>
         <div>
-          <button type="submit" (click)="delivered()">
+          <button
+            class="dButton"
+            mat-button
+            (click)="delivered(despacho); $event.stopPropagation()"
+          >
             <strong>Entregado</strong>
           </button>
         </div>

@@ -17,6 +17,7 @@ import {
   Breakpoints,
   LayoutModule,
 } from '@angular/cdk/layout';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dispatch-view',
@@ -43,14 +44,13 @@ export class DispatchViewComponent implements OnInit {
   displayedColumns: string[] = [
     'select',
     'folio',
+    'rutCliente',
+    'nombreCliente',
     'fechaDespacho',
     'horaDespacho',
-    'nombreCliente',
-    'rutCliente',
-    'codigoArticulo',
-    'nombreArticulo',
-    'cantidad',
+    'Direccion',
     'estado',
+    'Entrega',
   ];
 
   dataSource = new MatTableDataSource<any>([]);
@@ -63,7 +63,8 @@ export class DispatchViewComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -136,7 +137,12 @@ export class DispatchViewComponent implements OnInit {
   }
 
   // funciones para la entrega
-  delivered() {
-    console.log('Dispatch delivered');
+  delivered(despacho: any): void {
+    const { _id } = despacho;
+    console.log('ID del despacho:', _id);
+
+    this.router.navigate(['/delivered-form']);
+
+    console.log('Despacho a entregar:', despacho);
   }
 }
