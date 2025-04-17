@@ -9,50 +9,64 @@
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Folio</mat-label>
       <input
+        readonly
         matInput
         formControlName="folio"
-        placeholder="Ingresa nombre del cliente"
+        placeholder="Ingresa el folio"
       />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>RUT Cliente</mat-label>
-      <input matInput formControlName="rutCliente" placeholder="12345678-9" />
+      <input
+        readonly
+        matInput
+        formControlName="rutCliente"
+        placeholder="12345678-9"
+      />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Nombre Cliente</mat-label>
       <input
+        readonly
         matInput
         formControlName="nombreCliente"
-        placeholder="Ingresa nombre del cliente"
+        placeholder="Ingresa el nombre del cliente"
       />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Dirección</mat-label>
       <input
+        readonly
         matInput
         formControlName="direccion"
         placeholder="Ingresa la dirección"
       />
     </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Comentarios</mat-label>
+      <textarea
+        readonly
+        matInput
+        formControlName="comentario"
+        placeholder="Ingresa comentarios"
+      ></textarea>
+    </mat-form-field>
   </form>
 
   <!-- datos de quien recibe la entrega -->
-  <div
-    [formGroup]="deliveredForm"
-    (ngSubmit)="onSubmit()"
-    class="form-container"
-  >
+  <div [formGroup]="deliveredForm" class="form-container">
     <h3>Datos de entrega</h3>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>RUT</mat-label>
       <input
         matInput
-        formControlName="direccion"
-        placeholder="Ingresa la dirección"
+        formControlName="rutEntrega"
+        placeholder="Ingresa el RUT de quien recibe"
       />
     </mat-form-field>
 
@@ -60,22 +74,24 @@
       <mat-label>Nombre</mat-label>
       <input
         matInput
-        formControlName="direccion"
-        placeholder="Ingresa la dirección"
+        formControlName="nombreEntrega"
+        placeholder="Ingresa el nombre de quien recibe"
       />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Comentario</mat-label>
-      <textarea matInput formControlName="comentario"></textarea>
+      <textarea
+        matInput
+        formControlName="comentarioEntrega"
+        placeholder="Ingresa un comentario"
+      ></textarea>
     </mat-form-field>
 
     <div class="signature-container">
       <mat-label>Firma</mat-label>
       <canvas #signaturePad class="signature-pad"></canvas>
     </div>
-
-    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
 
     <div class="buttons">
       <button type="button" class="btn-action" (click)="clearSignature()">

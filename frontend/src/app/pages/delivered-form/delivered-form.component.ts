@@ -39,16 +39,36 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
-    this.deliveredForm = this.fb.group({
-      folio: ['', Validators.required],
-      nombreCliente: ['', Validators.required],
-      rutCliente: [
-        '',
-        [Validators.required, Validators.pattern('[0-9]{7,8}-[0-9kK]')],
-      ],
-      direccion: ['', Validators.required],
-      comentario: [''],
-    });
+    const despacho = history.state.despacho;
+    console.log('datos del historu', history.state);
+
+    console.log('Datos recibidos del despacho:', despacho);
+
+    if (despacho) {
+      console.log('Datos recibidos del despacho:', despacho);
+
+      this.deliveredForm = this.fb.group({
+        folio: [despacho.folio || '', Validators.required],
+        rutCliente: [despacho.rutCliente || '', Validators.required],
+        nombreCliente: [despacho.nombreCliente || '', Validators.required],
+        direccion: [despacho.direccion || '', Validators.required],
+        comentario: [despacho.comentario || ''], // Campo opcional
+        rutEntrega: [''], // Campo vacío para quien recibe
+        nombreEntrega: [''], // Campo vacío para quien recibe
+        comentarioEntrega: [''], // Campo vacío para comentarios adicionales
+      });
+    } else {
+      this.deliveredForm = this.fb.group({
+        folio: ['', Validators.required],
+        rutCliente: ['', Validators.required],
+        nombreCliente: ['', Validators.required],
+        direccion: ['', Validators.required],
+        comentario: [''],
+        rutEntrega: [''],
+        nombreEntrega: [''],
+        comentarioEntrega: [''],
+      });
+    }
   }
 
   ngAfterViewInit(): void {

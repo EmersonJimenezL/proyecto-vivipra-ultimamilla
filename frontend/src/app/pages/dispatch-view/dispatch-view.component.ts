@@ -17,7 +17,7 @@ import {
   Breakpoints,
   LayoutModule,
 } from '@angular/cdk/layout';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 
 @Component({
   selector: 'app-dispatch-view',
@@ -42,7 +42,6 @@ import { Router } from '@angular/router';
 })
 export class DispatchViewComponent implements OnInit {
   displayedColumns: string[] = [
-    'select',
     'folio',
     'rutCliente',
     'nombreCliente',
@@ -115,34 +114,19 @@ export class DispatchViewComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
-  }
-
-  toggleAllRows(event: any) {
-    event.checked
-      ? this.selection.select(...this.dataSource.data)
-      : this.selection.clear();
-  }
-
-  toggleRow(row: any) {
-    this.selection.toggle(row);
-  }
-
-  // recarga de datos
-  reloadData() {
-    this.getData();
-  }
-
   // funciones para la entrega
   delivered(despacho: any): void {
-    const { _id } = despacho;
-    console.log('ID del despacho:', _id);
+    console.log('ID del despacho (antes de navegar):', despacho);
 
-    this.router.navigate(['/delivered-form']);
+    // FORMA CORRECTA: pasar el state DENTRO de navigate o navigateByUrl
+    const extras: NavigationExtras = {
+      state: { despacho },
+    };
 
-    console.log('Despacho a entregar:', despacho);
+    // Variante 1: navigate
+    this.router.navigate(['/delivered-form'], extras);
+
+    // Variante 2: navigateByUrl (equivalente)
+    // this.router.navigateByUrl('/delivered-form', extras);
   }
 }

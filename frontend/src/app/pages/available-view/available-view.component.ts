@@ -238,9 +238,4 @@ export class AvailableViewComponent implements OnInit {
       );
     }
   }
-
-  // Método para recargar los datos
-  recargarDatos() {
-    this.chargeData();
-  }
 }
