@@ -15,6 +15,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-delivered-form',
@@ -36,39 +37,21 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
   private ctx!: CanvasRenderingContext2D;
   private drawing = false;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private authService: AuthService) {}
 
   ngOnInit(): void {
     const despacho = history.state.despacho;
-    console.log('datos del historu', history.state);
 
-    console.log('Datos recibidos del despacho:', despacho);
-
-    if (despacho) {
-      console.log('Datos recibidos del despacho:', despacho);
-
-      this.deliveredForm = this.fb.group({
-        folio: [despacho.folio || '', Validators.required],
-        rutCliente: [despacho.rutCliente || '', Validators.required],
-        nombreCliente: [despacho.nombreCliente || '', Validators.required],
-        direccion: [despacho.direccion || '', Validators.required],
-        comentario: [despacho.comentario || ''], // Campo opcional
-        rutEntrega: [''], // Campo vacío para quien recibe
-        nombreEntrega: [''], // Campo vacío para quien recibe
-        comentarioEntrega: [''], // Campo vacío para comentarios adicionales
-      });
-    } else {
-      this.deliveredForm = this.fb.group({
-        folio: ['', Validators.required],
-        rutCliente: ['', Validators.required],
-        nombreCliente: ['', Validators.required],
-        direccion: ['', Validators.required],
-        comentario: [''],
-        rutEntrega: [''],
-        nombreEntrega: [''],
-        comentarioEntrega: [''],
-      });
-    }
+    this.deliveredForm = this.fb.group({
+      folio: [despacho?.folio || '', Validators.required],
+      rutCliente: [despacho?.rutCliente || '', Validators.required],
+      nombreCliente: [despacho?.nombreCliente || '', Validators.required],
+      direccion: [despacho?.direccion || '', Validators.required],
+      comentario: [despacho?.comentario || ''],
+      rutEntrega: ['', Validators.required],
+      nombreEntrega: ['', Validators.required],
+      comentarioEntrega: [''],
+    });
   }
 
   ngAfterViewInit(): void {
@@ -80,13 +63,25 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     this.ctx.lineWidth = 2;
     this.ctx.lineCap = 'round';
 
+    // Eventos de firma (mouse + touch)
+    canvas.style.touchAction = 'none';
     canvas.addEventListener('mousedown', this.startDrawing.bind(this));
     canvas.addEventListener('mousemove', this.draw.bind(this));
     canvas.addEventListener('mouseup', this.finishDrawing.bind(this));
     canvas.addEventListener('mouseleave', this.finishDrawing.bind(this));
-    canvas.addEventListener('touchstart', this.startDrawing.bind(this));
-    canvas.addEventListener('touchmove', this.draw.bind(this));
+    canvas.addEventListener('touchstart', this.startDrawing.bind(this), {
+      passive: false,
+    });
+    canvas.addEventListener('touchmove', this.draw.bind(this), {
+      passive: false,
+    });
     canvas.addEventListener('touchend', this.finishDrawing.bind(this));
+
+    // Texto guía inicial
+    this.ctx.font = '16px sans-serif';
+    this.ctx.fillStyle = '#999';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText('Firme aquí', canvas.width / 2, canvas.height / 2);
   }
 
   private getPosition(event: MouseEvent | TouchEvent): {
@@ -128,6 +123,12 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
   clearSignature(): void {
     const canvas = this.signaturePadElement.nativeElement;
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Volver a dibujar el mensaje de guía
+    this.ctx.font = '16px sans-serif';
+    this.ctx.fillStyle = '#999';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText('Firme aquí', canvas.width / 2, canvas.height / 2);
   }
 
   getSignatureDataURL(): string {
@@ -135,9 +136,29 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit(): void {
+    if (this.deliveredForm.invalid) {
+      alert('Por favor, completa todos los campos obligatorios.');
+      return;
+    }
+
     const formValue = this.deliveredForm.getRawValue();
     const signature = this.getSignatureDataURL();
-    console.log('Enviando entrega:', { ...formValue, signature });
-    // aquí invocas tu servicio para persistir formValue y signature
+
+    const dataToSend = {
+      ...formValue,
+      firma: signature,
+    };
+
+    this.authService.setDataDistpatch(dataToSend).subscribe({
+      next: () => {
+        alert('Entrega registrada con éxito ✅');
+        this.deliveredForm.reset();
+        this.clearSignature();
+      },
+      error: (err) => {
+        console.error('Error al guardar la entrega:', err);
+        alert('Error al guardar la entrega');
+      },
+    });
   }
 }

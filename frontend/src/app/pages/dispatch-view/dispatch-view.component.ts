@@ -118,15 +118,10 @@ export class DispatchViewComponent implements OnInit {
   delivered(despacho: any): void {
     console.log('ID del despacho (antes de navegar):', despacho);
 
-    // FORMA CORRECTA: pasar el state DENTRO de navigate o navigateByUrl
     const extras: NavigationExtras = {
       state: { despacho },
     };
 
-    // Variante 1: navigate
     this.router.navigate(['/delivered-form'], extras);
-
-    // Variante 2: navigateByUrl (equivalente)
-    // this.router.navigateByUrl('/delivered-form', extras);
   }
 }
