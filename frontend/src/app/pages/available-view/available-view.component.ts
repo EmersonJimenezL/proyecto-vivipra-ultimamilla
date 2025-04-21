@@ -77,19 +77,73 @@ export class AvailableViewComponent implements OnInit {
   }
 
   // Método que obtiene los despachos y luego carga la vista
+  // Carga tanto la vista como los despachos de Mongo y filtra los repetidos
   chargeData(): void {
+    // Paso 1: Obtener los datos de despachos desde Mongo
     this.authService.getDataDispatch().subscribe({
-      // next se ejecuta cuando llega una respuesta exitosa del backend
-      next: (despachos) => {
-        // Creamos un set con los folios ya registrados como despachos
-        this.despachosExistentes = new Set(
-          despachos.map((despacho: any) => despacho.folio)
+      next: (despachosMongo) => {
+        // Paso 2: Crear Set de folios válidos convertidos a número
+        const foliosDespachados = new Set(
+          despachosMongo
+            .map((d: any) => Number(d.folio)) // Convertimos a número
+            .filter((folio: number) => !isNaN(folio)) // Solo válidos
         );
-        // Una vez cargado eso, traemos los datos de la vista
-        this.getDataView();
+
+        console.log('Folios válidos desde Mongo (despachados):', [
+          ...foliosDespachados,
+        ]);
+
+        // Paso 3: Obtener los datos desde la vista de SAP
+        this.authService.getData().subscribe({
+          next: (dataVista) => {
+            dataVista.forEach((item: any) => {
+              const fecha = new Date(item.FechaDocumento);
+              const padded = item.HoraCreacion.toString().padStart(6, '0');
+              const horas = parseInt(padded.substring(0, 2), 10);
+              const minutos = parseInt(padded.substring(2, 4), 10);
+              const segundos = parseInt(padded.substring(4, 6), 10);
+              fecha.setHours(horas, minutos, segundos);
+              item._fechaHoraCompleta = fecha;
+            });
+
+            // Paso 4: Filtrar datos que NO están en la lista de folios ya despachados
+            const datosFiltrados = dataVista.filter(
+              (item: any) => !foliosDespachados.has(Number(item.FolioNum))
+            );
+
+            console.log(
+              'Datos visibles (filtrados):',
+              datosFiltrados.map((d: any) => d.FolioNum)
+            );
+
+            // Paso 5: Asignar a la tabla
+            this.dataSource = new MatTableDataSource(datosFiltrados);
+
+            this.dataSource.sortingDataAccessor = (item, property) => {
+              if (property === 'FechaDocumento') {
+                return item._fechaHoraCompleta;
+              }
+              return item[property];
+            };
+            this.dataSource.sort = this.sort;
+
+            setTimeout(() => {
+              this.sort.active = 'FechaDocumento';
+              this.sort.direction = 'desc';
+              this.sort.sortChange.emit({
+                active: 'FechaDocumento',
+                direction: 'desc',
+              });
+            });
+
+            this.dataSource.paginator = this.paginator;
+          },
+          error: (error) =>
+            console.error('Error al obtener datos desde la vista:', error),
+        });
       },
-      // Si ocurre un error en la petición, lo mostramos en consola
-      error: (error) => console.error('Error al obtener despachos:', error),
+      error: (error) =>
+        console.error('Error al obtener datos desde Mongo:', error),
     });
   }
 
@@ -117,7 +171,7 @@ export class AvailableViewComponent implements OnInit {
           item._fechaHoraCompleta = fecha;
 
           // Imprime en consola todos los datos con su nueva propiedad
-          console.log(data);
+          // console.log(data);
         });
 
         // Filtramos los datos para mostrar solo los que NO están en despachos
@@ -217,7 +271,6 @@ export class AvailableViewComponent implements OnInit {
         direccion: item.Direccion,
         comentarios: item.Comentarios,
         estado: 'Despacho',
-        articulo: [{}],
         // debemos implementar el resto de los campos que se envían al backend
       };
 
