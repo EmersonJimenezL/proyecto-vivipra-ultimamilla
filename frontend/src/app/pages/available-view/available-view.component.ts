@@ -1,3 +1,4 @@
+// Importación de decoradores y módulos desde Angular core y Angular Material
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -15,10 +16,12 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { firstValueFrom } from 'rxjs';
 import { SharedModule } from '../../shared/shared.module';
 
+// Decorador que define un componente Angular
 @Component({
-  selector: 'app-available-view',
-  standalone: true,
+  selector: 'app-available-view', // Selector para usar el componente en HTML
+  standalone: true, // Indica que este componente es autónomo, no necesita declararse en un módulo
   imports: [
+    // Módulos que este componente importa para su funcionamiento
     CommonModule,
     MatTableModule,
     MatButtonModule,
@@ -33,93 +36,99 @@ import { SharedModule } from '../../shared/shared.module';
     MatSortModule,
     SharedModule,
   ],
-  templateUrl: './available-view.component.html',
-  styleUrl: './available-view.component.scss',
+  templateUrl: './available-view.component.html', // Ruta al archivo de plantilla HTML
+  styleUrl: './available-view.component.scss', // Ruta a los estilos del componente
 })
 export class AvailableViewComponent implements OnInit {
+  // Lista de columnas que se mostrarán en la tabla
   displayedColumns: string[] = [
-    'select',
-    'FolioNum',
-    'CodCliente',
-    'NombreCliente',
-    'FechaDocumento',
-    'HoraCreacion',
-    'Direccion',
-    'Comentarios',
+    'select', // Checkbox de selección
+    'FolioNum', // Número de folio
+    'CodCliente', // Código/RUT del cliente
+    'NombreCliente', // Nombre del cliente
+    'FechaDocumento', // Fecha de la factura
+    'HoraCreacion', // Hora de creación del documento
+    'Direccion', // Dirección del cliente
+    'Comentarios', // Comentarios asociados
   ];
 
-  // dataSource es la fuente de datos para la tabla Se inicializa como un array vacío para evitar errores al inicio
-  // y luego se llena con los datos obtenidos de la API
+  // Fuente de datos de la tabla, tipo MatTableDataSource
+  // Permite aplicar paginación, ordenamiento, filtrado, etc.
   dataSource = new MatTableDataSource<any>([]);
-  // selection es el modelo de selección para la tabla se inicializa con la opción de selección múltiple
-  // y un array vacío para almacenar los elementos seleccionados
+
+  // Modelo de selección para manejar qué filas están seleccionadas
+  // El `true` permite seleccionar múltiples filas al mismo tiempo
   selection = new SelectionModel<any>(true, []);
 
-  // Agregamos esta propiedad para almacenar los folios de despachos existentes
+  // Set que almacena los folios que ya han sido despachados
+  // Se usa para evitar volver a mostrarlos o duplicarlos
   despachosExistentes: Set<string> = new Set();
 
+  // Referencias a los componentes paginator y sort
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  // Inyección del servicio AuthService, que maneja llamadas a la API
   constructor(private authService: AuthService) {}
 
+  // Método que se ejecuta al iniciar el componente
   ngOnInit(): void {
-    // Primero obtenemos los despachos existentes y luego los datos de la vista
-    this.chargeData();
+    this.chargeData(); // Llama a la función que carga los datos
   }
 
-  // Método para cargar los datos de la vista y los despachos existentes
+  // Método que obtiene los despachos y luego carga la vista
   chargeData(): void {
-    // Obtenemos los despachos existentes
     this.authService.getDataDispatch().subscribe({
+      // next se ejecuta cuando llega una respuesta exitosa del backend
       next: (despachos) => {
-        // Creamos un conjunto de folios para búsqueda eficiente
+        // Creamos un set con los folios ya registrados como despachos
         this.despachosExistentes = new Set(
           despachos.map((despacho: any) => despacho.folio)
         );
-
-        // Ahora obtenemos los datos de la vista
+        // Una vez cargado eso, traemos los datos de la vista
         this.getDataView();
       },
+      // Si ocurre un error en la petición, lo mostramos en consola
       error: (error) => console.error('Error al obtener despachos:', error),
     });
   }
 
-  // Método para obtener los datos de la vista y procesarlos
+  // Obtiene los datos desde la API y los prepara para mostrarlos en tabla
   getDataView(): void {
     this.authService.getData().subscribe({
       next: (data) => {
-        // Procesamiento existente de fechas
+        // Procesamos cada ítem de los datos recibidos
         data.forEach((item: any) => {
-          // Convertir FechaDocumento a Date
+          // Convertimos el campo FechaDocumento a un objeto Date
           const fecha = new Date(item.FechaDocumento);
 
-          // Asegurarse que HoraCreacion tenga 6 dígitos
+          // Nos aseguramos que HoraCreacion tenga 6 dígitos (ej. 90015 → 090015)
           const padded = item.HoraCreacion.toString().padStart(6, '0');
+
+          // Extraemos hora, minutos y segundos
           const horas = parseInt(padded.substring(0, 2), 10);
           const minutos = parseInt(padded.substring(2, 4), 10);
           const segundos = parseInt(padded.substring(4, 6), 10);
 
-          // Combinar fecha + hora correctamente
-          fecha.setHours(horas);
-          fecha.setMinutes(minutos);
-          fecha.setSeconds(segundos);
+          // Asignamos la hora completa a la fecha
+          fecha.setHours(horas, minutos, segundos);
 
-          // Guardar como propiedad auxiliar para ordenar
+          // Creamos una propiedad auxiliar para ordenar por fecha+hora
           item._fechaHoraCompleta = fecha;
 
+          // Imprime en consola todos los datos con su nueva propiedad
           console.log(data);
         });
 
-        //Filtrar para mostrar solo los elementos que no están en despacho
+        // Filtramos los datos para mostrar solo los que NO están en despachos
         const datosFiltrados = data.filter(
           (item: any) => !this.despachosExistentes.has(item.FolioNum)
         );
 
-        // Usar los datos filtrados para la tabla
+        // Asignamos los datos filtrados a la tabla
         this.dataSource = new MatTableDataSource(datosFiltrados);
 
-        // Configuración existente de ordenamiento
+        // Configuramos el ordenamiento para usar _fechaHoraCompleta en la columna FechaDocumento
         this.dataSource.sortingDataAccessor = (item, property) => {
           if (property === 'FechaDocumento') {
             return item._fechaHoraCompleta;
@@ -127,8 +136,10 @@ export class AvailableViewComponent implements OnInit {
           return item[property];
         };
 
+        // Asignamos el objeto sort a la tabla
         this.dataSource.sort = this.sort;
 
+        // Después de un pequeño delay, activamos el orden descendente por FechaDocumento
         setTimeout(() => {
           this.sort.active = 'FechaDocumento';
           this.sort.direction = 'desc';
@@ -138,18 +149,20 @@ export class AvailableViewComponent implements OnInit {
           });
         });
 
+        // Asignamos el paginador a la tabla
         this.dataSource.paginator = this.paginator;
       },
       error: (error) => console.error('Error al obtener datos:', error),
     });
   }
 
-  // funciones para la tabla
+  // Filtra la tabla en tiempo real según el texto ingresado por el usuario
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
+  // Verifica si todos los elementos visibles están seleccionados
   isAllSelected() {
     const filteredData = this.dataSource.filteredData;
     return (
@@ -158,9 +171,11 @@ export class AvailableViewComponent implements OnInit {
     );
   }
 
+  // Selecciona o deselecciona todas las filas visibles en la tabla
   toggleAllRows(event: any) {
     const filteredData = this.dataSource.filteredData;
 
+    // `event.checked` es true si el checkbox "seleccionar todos" está marcado
     if (event.checked) {
       this.selection.select(...filteredData);
     } else {
@@ -168,66 +183,66 @@ export class AvailableViewComponent implements OnInit {
     }
   }
 
+  // Alterna la selección de una fila (marca o desmarca)
   toggleRow(row: any) {
     this.selection.toggle(row);
   }
 
-  // Método para agregar a despacho
+  // Envía las filas seleccionadas al backend como nuevos despachos
   async addToDispatch() {
     const selected = this.selection.selected;
     if (selected.length === 0) return;
 
+    // Obtenemos la fecha y hora actual en formato legible
     const hoy = new Date();
     const fechaFormateada = `${hoy.getFullYear()}-${(hoy.getMonth() + 1)
       .toString()
       .padStart(2, '0')}-${hoy.getDate().toString().padStart(2, '0')}`;
-
     const horaFormateada = `${hoy.getHours().toString().padStart(2, '0')}:${hoy
       .getMinutes()
       .toString()
       .padStart(2, '0')}:${hoy.getSeconds().toString().padStart(2, '0')}`;
 
-    // Creamos un array para almacenar las promesas de las solicitudes
-    const requests: any = [];
+    // Creamos un array para guardar todas las solicitudes al backend
+    const requests: any[] = [];
 
     selected.forEach((item) => {
+      // Creamos el cuerpo (payload) de la solicitud
       const payload = {
         folio: item.FolioNum,
         fechaDespacho: fechaFormateada,
         horaDespacho: horaFormateada,
         nombreCliente: item.NombreCliente,
         rutCliente: item['Cod.Cliente'],
-        articulos: [
-          {
-            codigo: item.Articulo,
-            nombre: item.Descripcion || 'No definido',
-            cantidad: item.Cantidad,
-          },
-        ],
+        direccion: item.Direccion,
+        comentarios: item.Comentarios,
         estado: 'Despacho',
+        articulo: [{}],
+        // debemos implementar el resto de los campos que se envían al backend
       };
 
       console.log('Enviando payload:', payload);
 
-      // Agregamos cada solicitud a nuestro array usando firstValueFrom
+      // Guardamos la promesa para luego ejecutarlas todas juntas
       requests.push(firstValueFrom(this.authService.saveData(payload)));
     });
 
     try {
-      // Esperamos a que todas las solicitudes se completen
+      // Promise.all ejecuta todas las promesas al mismo tiempo y espera que todas terminen
+      // Si alguna falla, cae al bloque catch
       await Promise.all(requests);
 
       alert('Despachos creados correctamente');
 
-      // Actualizamos los folios existentes
+      // Marcamos los folios como despachados para no volver a mostrarlos
       selected.forEach((item) => {
         this.despachosExistentes.add(item.FolioNum);
       });
 
-      // Limpiamos la selección
+      // Quitamos la selección
       this.selection.clear();
 
-      // Actualizamos la vista (filtramos los elementos que ya están en despacho)
+      // Filtramos la tabla para ocultar los ya despachados
       this.dataSource.data = this.dataSource.data.filter(
         (item: any) => !this.despachosExistentes.has(item.FolioNum)
       );
