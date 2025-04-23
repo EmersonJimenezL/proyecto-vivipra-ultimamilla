@@ -21,10 +21,14 @@ import {
   Breakpoints, // Conjunto de puntos de corte predefinidos (como móvil, tablet, etc.)
   LayoutModule,
 } from '@angular/cdk/layout';
+import { MatDialogModule } from '@angular/material/dialog';
+import { SafeUrlPipe } from '../../shared/pipes/safe-url.pipe';
 
 // Servicios
 import { AuthService } from '../../services/auth.service';
 import { NavigationExtras, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalMapComponent } from '../modal-map/modal-map.component';
 
 @Component({
   selector: 'app-dispatch-view', // Selector HTML del componente
@@ -43,6 +47,7 @@ import { NavigationExtras, Router } from '@angular/router';
     MatSort,
     MatSortModule,
     LayoutModule,
+    MatDialogModule,
   ],
   templateUrl: './dispatch-view.component.html', // Vista asociada
   styleUrl: './dispatch-view.component.scss', // Estilos asociados
@@ -53,10 +58,8 @@ export class DispatchViewComponent implements OnInit {
     'folio',
     'rutCliente',
     'nombreCliente',
-    'fechaDespacho',
-    'horaDespacho',
     'Direccion',
-    'estado',
+    'mapa',
     'Entrega', // Botón o acción para realizar la entrega
   ];
 
@@ -79,7 +82,8 @@ export class DispatchViewComponent implements OnInit {
   constructor(
     private authService: AuthService, // Servicio para obtener datos del backend
     private breakpointObserver: BreakpointObserver, // Detecta si estamos en móvil/tablet
-    private router: Router // Para navegar entre rutas
+    private router: Router, // Para navegar entre rutas
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -154,5 +158,12 @@ export class DispatchViewComponent implements OnInit {
 
     // Navegamos al formulario de entrega, pasando el estado con los datos
     this.router.navigate(['/delivered-form'], extras);
+  }
+
+  abrirMapa(direccion: string): void {
+    this.dialog.open(ModalMapComponent, {
+      width: '600px',
+      data: { direccion },
+    });
   }
 }

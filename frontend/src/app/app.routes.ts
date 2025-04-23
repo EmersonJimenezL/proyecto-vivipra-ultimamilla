@@ -4,6 +4,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { authGuard } from './guards/auth.guard';
 import { DispatchViewComponent } from './pages/dispatch-view/dispatch-view.component';
 import { DeliveredFormComponent } from './pages/delivered-form/delivered-form.component';
+import { ModalMapComponent } from './pages/modal-map/modal-map.component';
 
 export const routes: Routes = [
   {
@@ -29,5 +30,9 @@ export const routes: Routes = [
   {
     path: 'delivered-form',
     component: DeliveredFormComponent,
+  },
+  {
+    path: 'modal-map',
+    component: ModalMapComponent,
   },
 ];

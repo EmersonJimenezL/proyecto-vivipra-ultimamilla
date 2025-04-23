@@ -264,14 +264,15 @@ export class AvailableViewComponent implements OnInit {
       // Creamos el cuerpo (payload) de la solicitud
       const payload = {
         folio: item.FolioNum,
-        fechaDespacho: fechaFormateada,
-        horaDespacho: horaFormateada,
         nombreCliente: item.NombreCliente,
         rutCliente: item['Cod.Cliente'],
-        direccion: item.Direccion,
-        comentarios: item.Comentarios,
         estado: 'Despacho',
-        // debemos implementar el resto de los campos que se envían al backend
+        direccion: item.Direccion,
+        // comentarios: item.Comentarios,
+        tipoEntrega: 'RM',
+        chofer: 'Tralalero Tralala',
+        patente: 'xxxxxx',
+        asignadoPor: 'bombardiro crocodilo',
       };
 
       console.log('Enviando payload:', payload);

@@ -4,7 +4,11 @@
     (ngSubmit)="onSubmit()"
     class="form-container"
   >
-    <h3>Datos de la factura</h3>
+    <div style="display: flex; justify-content: center; margin-bottom: 0px">
+      <img src="assets/vivipra.png" alt="vivipra" style="width: 90px" />
+    </div>
+
+    <h3 style="text-align: center; margin-top: -25px">Datos de la factura</h3>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Folio</mat-label>
@@ -31,7 +35,7 @@
       <textarea readonly matInput formControlName="comentario"></textarea>
     </mat-form-field>
 
-    <h3>Datos de entrega</h3>
+    <h3 style="text-align: center">Datos de entrega</h3>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>RUT</mat-label>
