@@ -24,6 +24,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 // Servicio personalizado para guardar datos
 import { AuthService } from '../../services/auth.service';
+import { FormatTimePipe } from '../../shared/pipes/format-time.pipe';
 
 @Component({
   selector: 'app-delivered-form', // Nombre del componente (selector en HTML)
@@ -60,6 +61,9 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     // Obtenemos el objeto `despacho` desde el estado de navegación
     const despacho = history.state.despacho;
+
+    // Obtenemos el id asociado a la base de MongoDb
+    const id = despacho._id;
 
     // Creamos el formulario reactivo con los campos necesarios
     this.deliveredForm = this.fb.group({
@@ -178,6 +182,8 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
 
   // Se ejecuta al enviar el formulario (botón guardar entrega)
   onSubmit(): void {
+    const { _id } = history.state.despacho;
+
     // Si el formulario es inválido, mostramos alerta y detenemos el envío
     if (this.deliveredForm.invalid) {
       alert('Por favor, completa todos los campos obligatorios.');
@@ -186,18 +192,33 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
 
     // Obtenemos los datos del formulario
     const formValue = this.deliveredForm.getRawValue();
+    const { rutEntrega, nombreEntrega, comentarioEntrega } = formValue;
 
     // Obtenemos la firma como imagen base64
     const signature = this.getSignatureDataURL();
 
+    // Obtenemos la fecha y hora actual en formato legible
+    const hoy = new Date();
+    const fechaFormateada = `${hoy.getFullYear()}-${(hoy.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${hoy.getDate().toString().padStart(2, '0')}`;
+    const horaFormateada = `${hoy.getHours().toString().padStart(2, '0')}:${hoy
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')}:${hoy.getSeconds().toString().padStart(2, '0')}`;
+
     // Combinamos ambos datos para enviarlos al backend
     const dataToSend = {
-      ...formValue,
+      rutEntrega: rutEntrega,
+      nombreEntrega: nombreEntrega,
+      fechaEntrega: fechaFormateada,
+      horaEntrega: horaFormateada,
       firma: signature,
     };
+    console.log('datos a enviar: ', dataToSend);
 
     // Enviamos los datos usando el servicio
-    this.authService.setDataDistpatch(dataToSend).subscribe({
+    this.authService.setDataDistpatch(_id, dataToSend).subscribe({
       next: () => {
         // Si todo sale bien, limpiamos el formulario y la firma
         alert('Entrega registrada con éxito ✅');

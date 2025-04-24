@@ -268,6 +268,8 @@ export class AvailableViewComponent implements OnInit {
         rutCliente: item['Cod.Cliente'],
         estado: 'Despacho',
         direccion: item.Direccion,
+        horaAsignacion: horaFormateada,
+        fechaAsignacion: fechaFormateada,
         // comentarios: item.Comentarios,
         tipoEntrega: 'RM',
         chofer: 'Tralalero Tralala',

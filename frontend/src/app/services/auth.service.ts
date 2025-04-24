@@ -31,8 +31,8 @@ export class AuthService {
   }
 
   // metodo para actualizar los campos faltantes de la API conectada con MongoDB
-  setDataDistpatch(data: any): Observable<any> {
-    return this.http.patch(this.endPointMongo, data);
+  setDataDistpatch(id: number, data: any): Observable<any> {
+    return this.http.patch(`${this.endPointMongo}/${id}`, data);
   }
 
   // estas fuuncionalidades estaran destinadas al login de la pagina

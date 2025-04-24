@@ -160,6 +160,7 @@ export class DispatchViewComponent implements OnInit {
     this.router.navigate(['/delivered-form'], extras);
   }
 
+  // A brir el mapa, que contendra la ubicacion del despacho que se asigna
   abrirMapa(direccion: string): void {
     this.dialog.open(ModalMapComponent, {
       width: '600px',

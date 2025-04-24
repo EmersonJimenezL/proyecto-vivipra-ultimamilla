@@ -112,7 +112,9 @@
           {{ despacho.direccion }}
         </div>
         <div>
-          <mat-icon (click)="abrirMapa('')" style="cursor: pointer"
+          <mat-icon
+            (click)="abrirMapa(despacho.direccion)"
+            style="cursor: pointer"
             >room</mat-icon
           >
         </div>
