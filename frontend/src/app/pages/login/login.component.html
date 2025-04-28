@@ -1,57 +1,63 @@
-<div class="login-container">
-  <mat-card class="login-card">
-    <h1 class="login-title">Iniciar sesión</h1>
-    <form [formGroup]="loginForm">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nombre de Usuario</mat-label>
-        <input
-          matInput
-          formControlName="nombre_usuario"
-          type="text"
-          required
-          style="color: black"
-        />
-        <mat-error
-          *ngIf="loginForm.get('nombre_usuario')?.hasError('required')"
-        >
-          El nombre de usuario es obligatorio
-        </mat-error>
-      </mat-form-field>
+<div class="container">
+  <div class="login-container">
+    <mat-card class="login-card">
+      <div style="text-align: center; margin-bottom: -30px">
+        <img src="assets/vivipra.png" alt="Vivipra logo" style="width: 100px" />
+      </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Contraseña</mat-label>
-        <input
-          matInput
-          [type]="hidePassword ? 'password' : 'text'"
-          formControlName="contrasenna"
-          required
-          style="color: black"
-        />
+      <h1 class="login-title">Iniciar sesión</h1>
+      <form [formGroup]="loginForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre de Usuario</mat-label>
+          <input
+            matInput
+            formControlName="nombre_usuario"
+            type="text"
+            required
+            style="color: black"
+          />
+          <mat-error
+            *ngIf="loginForm.get('nombre_usuario')?.hasError('required')"
+          >
+            El nombre de usuario es obligatorio
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="contrasenna"
+            required
+            style="color: black"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hidePassword = !hidePassword"
+            type="button"
+            tabindex="-1"
+          >
+            <mat-icon>{{
+              hidePassword ? "visibility_off" : "visibility"
+            }}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('contrasenna')?.hasError('required')">
+            La contraseña es obligatoria
+          </mat-error>
+        </mat-form-field>
+
         <button
-          mat-icon-button
-          matSuffix
-          (click)="hidePassword = !hidePassword"
-          type="button"
-          tabindex="-1"
+          mat-raised-button
+          class="full-width"
+          type="submit"
+          [disabled]="loginForm.invalid || loading"
+          (click)="onSubmit()"
         >
-          <mat-icon>{{
-            hidePassword ? "visibility_off" : "visibility"
-          }}</mat-icon>
+          Iniciar sesión
         </button>
-        <mat-error *ngIf="loginForm.get('contrasenna')?.hasError('required')">
-          La contraseña es obligatoria
-        </mat-error>
-      </mat-form-field>
-
-      <button
-        mat-raised-button
-        class="full-width"
-        type="submit"
-        [disabled]="loginForm.invalid || loading"
-        (click)="onSubmit()"
-      >
-        Iniciar sesión
-      </button>
-    </form>
-  </mat-card>
+      </form>
+    </mat-card>
+  </div>
 </div>

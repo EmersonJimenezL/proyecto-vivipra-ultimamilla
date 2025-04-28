@@ -8,6 +8,9 @@ To start a local development server, run:
 
 ```bash
 ng serve
+
+# para levantar el servidor de desarrollo de manera abierta e ingresar desde otros dispositivos
+ng serve --host 0.0.0.0 --port 4200
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
