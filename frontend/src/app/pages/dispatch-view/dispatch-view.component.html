@@ -59,7 +59,7 @@
       </ng-container> -->
 
       <ng-container matColumnDef="mapa">
-        <th mat-header-cell *matHeaderCellDef>Ubicacion</th>
+        <th mat-header-cell *matHeaderCellDef>Mapa</th>
         <td mat-cell *matCellDef="let despacho" style="text-align: center">
           <mat-icon
             (click)="abrirMapa(despacho.direccion)"
@@ -98,7 +98,9 @@
       (click)="despacho.expanded = !despacho.expanded"
     >
       <div>
-        <strong>{{ despacho.folio }} - </strong>
+        <strong> Folio: </strong>
+        {{ despacho.folio }}
+        <strong>| Cliente:</strong>
         {{ despacho.nombreCliente }}
       </div>
       <div class="mobile-card-details" *ngIf="despacho.expanded">
@@ -108,10 +110,18 @@
         </div>
         <div><strong>RUT Cliente:</strong> {{ despacho.rutCliente }}</div>
         <div>
+          <strong>Cliente:</strong>
+          {{ despacho.nombreCliente }}
+        </div>
+        <div>
           <strong>Direccion:</strong>
           {{ despacho.direccion }}
         </div>
-        <div>
+        <hr />
+        <div style="text-align: center; margin-bottom: 1rem">
+          <strong> haz click en el icono para abrir el mapa </strong>
+        </div>
+        <div style="text-align: center">
           <mat-icon
             (click)="abrirMapa(despacho.direccion)"
             style="cursor: pointer"
