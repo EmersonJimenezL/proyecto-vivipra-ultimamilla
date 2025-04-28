@@ -99,6 +99,7 @@ export class DispatchViewComponent implements OnInit {
   }
 
   // Carga los datos de los despachos desde el backend
+
   getData() {
     this.authService.getDataDispatch().subscribe({
       // next: se ejecuta cuando recibimos respuesta correcta

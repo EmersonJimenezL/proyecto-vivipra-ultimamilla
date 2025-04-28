@@ -46,20 +46,26 @@ export class LoginComponent {
       contrasenna: ['', Validators.required],
     });
   }
+  loading = false;
+  // funcionalidad que se encarga de, enviar y validar las credenciales de inicio de sesion
+  onSubmit() {
+    if (this.loginForm.valid) {
+      this.loading = true;
+      const { nombre_usuario, contrasenna } = this.loginForm.value;
 
-  // onSubmit() {
-  //   if (this.loginForm.valid) {
-  //     const { nombre_usuario, contrasenna } = this.loginForm.value;
-
-  //     this.authService.login(nombre_usuario, contrasenna).subscribe({
-  //       next: () => this.router.navigate(['/available-view']),
-  //       error: () => {
-  //         this.snackBar.open('Credenciales incorrectas.', 'Cerrar', {
-  //           duration: 3000,
-  //           panelClass: ['snackbar-error'],
-  //         });
-  //       },
-  //     });
-  //   }
-  // }
+      this.authService.login(nombre_usuario, contrasenna).subscribe({
+        next: () => {
+          this.loading = false;
+          this.router.navigate(['/available-view']);
+        },
+        error: () => {
+          this.loading = false;
+          this.snackBar.open('Credenciales incorrectas.', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['snackbar-error'],
+          });
+        },
+      });
+    }
+  }
 }

@@ -3,19 +3,18 @@
     <h1 class="login-title">Iniciar sesión</h1>
     <form [formGroup]="loginForm">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Email</mat-label>
+        <mat-label>Nombre de Usuario</mat-label>
         <input
           matInput
-          formControlName="email"
-          type="email"
+          formControlName="nombre_usuario"
+          type="text"
           required
           style="color: black"
         />
-        <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-          El correo es obligatorio
-        </mat-error>
-        <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-          Correo inválido
+        <mat-error
+          *ngIf="loginForm.get('nombre_usuario')?.hasError('required')"
+        >
+          El nombre de usuario es obligatorio
         </mat-error>
       </mat-form-field>
 
@@ -24,7 +23,7 @@
         <input
           matInput
           [type]="hidePassword ? 'password' : 'text'"
-          formControlName="password"
+          formControlName="contrasenna"
           required
           style="color: black"
         />
@@ -39,7 +38,7 @@
             hidePassword ? "visibility_off" : "visibility"
           }}</mat-icon>
         </button>
-        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+        <mat-error *ngIf="loginForm.get('contrasenna')?.hasError('required')">
           La contraseña es obligatoria
         </mat-error>
       </mat-form-field>
@@ -48,7 +47,8 @@
         mat-raised-button
         class="full-width"
         type="submit"
-        [disabled]="loginForm.invalid"
+        [disabled]="loginForm.invalid || loading"
+        (click)="onSubmit()"
       >
         Iniciar sesión
       </button>

@@ -10,3 +10,13 @@ div {
 img {
   width: 30rem;
 }
+
+@media (max-width: 1024px) {
+  div {
+    width: 50vh;
+  }
+
+  img {
+    width: 15rem;
+  }
+}

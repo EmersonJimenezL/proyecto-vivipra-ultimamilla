@@ -5,6 +5,7 @@ import { authGuard } from './guards/auth.guard';
 import { DispatchViewComponent } from './pages/dispatch-view/dispatch-view.component';
 import { DeliveredFormComponent } from './pages/delivered-form/delivered-form.component';
 import { ModalMapComponent } from './pages/modal-map/modal-map.component';
+import { UnauthorizedComponentComponent } from './pages/unauthorized-component/unauthorized-component.component';
 
 export const routes: Routes = [
   {
@@ -35,4 +36,21 @@ export const routes: Routes = [
     path: 'modal-map',
     component: ModalMapComponent,
   },
+  {
+    path: 'unauthorized-component',
+    component: UnauthorizedComponentComponent,
+  },
+  { path: '**', redirectTo: '/login' },
 ];
+
+// {
+//   path: 'chofer-view',
+//   canActivate: [authGuard(['CHOFER'])], // Solo CHOFER
+//   loadComponent: () => import('./chofer-view/chofer-view.component').then(m => m.ChoferViewComponent),
+// },
+// {
+//   path: 'available-view',
+//   canActivate: [authGuard()], // Cualquier usuario logueado puede entrar
+//   loadComponent: () => import('./available-view/available-view.component').then(m => m.AvailableViewComponent),
+// },
+// ];
