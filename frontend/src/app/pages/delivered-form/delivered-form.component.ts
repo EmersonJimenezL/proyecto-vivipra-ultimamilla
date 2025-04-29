@@ -212,6 +212,7 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
       rutEntrega: rutEntrega,
       nombreEntrega: nombreEntrega,
       fechaEntrega: fechaFormateada,
+      // comentarioEntrega: comentarioEntrega,
       horaEntrega: horaFormateada,
       firma: signature,
     };
