@@ -62,6 +62,7 @@ export class AuthService {
         );
 
         if (usuarioEncontrado) {
+          localStorage.setItem('nombre', usuarioEncontrado.nombreUsuario);
           localStorage.setItem('token', 'falso-token');
           localStorage.setItem('rol', usuarioEncontrado.rol);
           localStorage.setItem('userId', usuarioEncontrado._id);
@@ -77,8 +78,6 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
     localStorage.removeItem('userId');
-    localStorage.removeItem('nombre');
-    localStorage.removeItem('apellido');
   }
 
   isLoggedIn(): boolean {
@@ -91,6 +90,10 @@ export class AuthService {
 
   getUserId(): string | null {
     return localStorage.getItem('userId');
+  }
+
+  getNombreUsuario(): string {
+    return localStorage.getItem('nombre') || 'Desconocido';
   }
 
   // controlar el tiempo de la sesion

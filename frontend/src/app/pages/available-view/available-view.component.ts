@@ -199,7 +199,7 @@ export class AvailableViewComponent implements OnInit {
         tipoEntrega: result.tipoEntrega, // desde modal
         chofer: result.chofer, // desde modal
         patente: 'xxxxxx', // será completada luego por el chofer
-        asignadoPor: 'bombardiro crocodilo', // pendiente de login
+        asignadoPor: this.authService.getNombreUsuario(), // pendiente de login
       };
 
       requests.push(
