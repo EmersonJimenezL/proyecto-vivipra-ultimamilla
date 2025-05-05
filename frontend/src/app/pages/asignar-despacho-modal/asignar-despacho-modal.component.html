@@ -1,21 +1,37 @@
-<h2 mat-dialog-title>Asignar despacho</h2>
+<h2>Asignar despacho - Folio {{ data.folio }}</h2>
 
-<mat-dialog-content>
-  <p><strong>Folio:</strong> {{ data.folio }}</p>
+<div class="section-title">Selecciona el tipo de entrega:</div>
+<div class="button-group">
+  <button
+    mat-stroked-button
+    [class.selected]="tipoEntrega === 'Interno'"
+    (click)="seleccionarTipo('Interno')"
+  >
+    Interno
+  </button>
+  <button
+    mat-stroked-button
+    [class.selected]="tipoEntrega === 'Externo'"
+    (click)="seleccionarTipo('Externo')"
+  >
+    Externo
+  </button>
+</div>
 
-  <p><strong>Tipo de entrega:</strong></p>
-  <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
-    <button mat-raised-button color="primary" (click)="seleccionar('Interno')">
-      Interno
-    </button>
-    <button mat-raised-button color="accent" (click)="seleccionar('Externo')">
-      Externo
-    </button>
-  </div>
+<div class="section-title">Selecciona el chofer:</div>
+<mat-form-field appearance="fill">
+  <mat-label>Chofer</mat-label>
+  <mat-select [(ngModel)]="choferSeleccionado">
+    <mat-option
+      *ngFor="let chofer of choferesDisponibles"
+      [value]="chofer.nombreUsuario"
+    >
+      {{ chofer.nombreUsuario }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
 
-  <p style="color: gray">(Próximamente: selección de chofer aquí)</p>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button (click)="cancelar()">Cancelar</button>
-</mat-dialog-actions>
+<div class="actions">
+  <button mat-button class="cancel" (click)="cancelar()">Cancelar</button>
+  <button mat-button class="confirm" (click)="confirmar()">Confirmar</button>
+</div>

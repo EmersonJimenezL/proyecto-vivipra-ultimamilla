@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: #212121;
+  color: #ffffff;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  font-family: "Segoe UI", sans-serif;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #ff9800;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #cccccc;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+
+  button {
+    border-radius: 24px;
+    padding: 8px 20px;
+    min-width: 100px;
+    &.selected {
+      background-color: #ff9800;
+      color: #212121;
+    }
+  }
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 24px;
+
+  .mat-form-field-flex {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+  }
+
+  .mat-select-arrow {
+    color: #ff9800;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+
+  button {
+    border-radius: 20px;
+    font-weight: 500;
+    padding: 6px 16px;
+
+    &.confirm {
+      background-color: #ff9800;
+      color: #212121;
+    }
+
+    &.cancel {
+      background-color: transparent;
+      color: #ff9800;
+    }
+  }
+}

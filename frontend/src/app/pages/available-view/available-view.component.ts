@@ -196,10 +196,10 @@ export class AvailableViewComponent implements OnInit {
         horaAsignacion: horaFormateada,
         fechaAsignacion: fechaFormateada,
         comentariosAsignacion: item.Comentarios,
-        tipoEntrega: result,
-        chofer: 'Tralalero Tralala',
-        patente: 'xxxxxx',
-        asignadoPor: 'bombardiro crocodilo',
+        tipoEntrega: result.tipoEntrega, // desde modal
+        chofer: result.chofer, // desde modal
+        patente: 'xxxxxx', // será completada luego por el chofer
+        asignadoPor: 'bombardiro crocodilo', // pendiente de login
       };
 
       requests.push(
@@ -218,15 +218,12 @@ export class AvailableViewComponent implements OnInit {
         );
       }
 
-      // Marcamos solo los folios exitosos como despachados
       foliosExitosos.forEach((folio) => {
         this.despachosExistentes.add(folio);
       });
 
-      // Limpiamos la selección
       this.selection.clear();
 
-      // Quitamos solo los despachados exitosamente
       this.dataSource.data = this.dataSource.data.filter(
         (item: any) => !this.despachosExistentes.has(item.FolioNum)
       );

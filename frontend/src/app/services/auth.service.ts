@@ -13,7 +13,7 @@ export class AuthService {
   private endPointView = 'http://192.168.200.80:3000/data/FactDespacho';
 
   // endpoint encargado de traer la informacion de la tabla de usuarios
-  private endPointUser = 'http://192.168.200.80:3000/data/usuario';
+  private endPointUser = 'http://192.168.200.80:3005/usuarios';
 
   // endpoint para actualizar los datos
   private endPointMongoId = '/despachar';
@@ -46,6 +46,10 @@ export class AuthService {
 
   getRol(): string | null {
     return localStorage.getItem('rol');
+  }
+
+  getDataUser(): Observable<any> {
+    return this.http.get(this.endPointUser);
   }
 
   // estas fuuncionalidades estaran destinadas al login de la pagina
