@@ -35,6 +35,17 @@ export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = true;
 
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      const rol = this.authService.getRol();
+      if (rol === 'chofer') {
+        this.router.navigate(['/dispatch-view']);
+      } else {
+        this.router.navigate(['/available-view']);
+      }
+    }
+  }
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -56,7 +67,15 @@ export class LoginComponent {
       this.authService.login(nombre_usuario, contrasenna).subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/available-view']);
+          this.authService.startAutoLogout(); //cierre automatico
+
+          const rol = this.authService.getRol();
+
+          if (rol === 'chofer') {
+            this.router.navigate(['/dispatch-view']);
+          } else {
+            this.router.navigate(['/available-view']);
+          }
         },
         error: () => {
           this.loading = false;

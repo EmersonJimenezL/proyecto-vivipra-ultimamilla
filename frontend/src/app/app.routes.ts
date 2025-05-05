@@ -22,19 +22,22 @@ export const routes: Routes = [
       import('./pages/available-view/available-view.component').then(
         (m) => m.AvailableViewComponent
       ),
-    canActivate: [authGuard], //protegido por el guard
+    canActivate: [authGuard(['admin', 'bodega'])],
   },
   {
     path: 'dispatch-view',
     component: DispatchViewComponent,
+    canActivate: [authGuard(['admin', 'chofer'])],
   },
   {
     path: 'delivered-form',
     component: DeliveredFormComponent,
+    canActivate: [authGuard(['admin', 'chofer'])],
   },
   {
     path: 'modal-map',
     component: ModalMapComponent,
+    canActivate: [authGuard(['admin'])],
   },
   {
     path: 'unauthorized-component',
@@ -42,15 +45,3 @@ export const routes: Routes = [
   },
   { path: '**', redirectTo: '/login' },
 ];
-
-// {
-//   path: 'chofer-view',
-//   canActivate: [authGuard(['CHOFER'])], // Solo CHOFER
-//   loadComponent: () => import('./chofer-view/chofer-view.component').then(m => m.ChoferViewComponent),
-// },
-// {
-//   path: 'available-view',
-//   canActivate: [authGuard()], // Cualquier usuario logueado puede entrar
-//   loadComponent: () => import('./available-view/available-view.component').then(m => m.AvailableViewComponent),
-// },
-// ];

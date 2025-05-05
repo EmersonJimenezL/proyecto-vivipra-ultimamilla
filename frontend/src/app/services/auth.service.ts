@@ -58,16 +58,13 @@ export class AuthService {
       map((usuarios) => {
         const usuarioEncontrado = usuarios.find(
           (u: any) =>
-            u.usuario === nombre_usuario && u.contrasenna === contrasenna
+            u.nombreUsuario === nombre_usuario && u.password === contrasenna
         );
 
         if (usuarioEncontrado) {
-          // Guardar sesión manualmente
-          localStorage.setItem('token', 'falso-token'); // Un token falso para simular
+          localStorage.setItem('token', 'falso-token');
           localStorage.setItem('rol', usuarioEncontrado.rol);
-          localStorage.setItem('userId', usuarioEncontrado.id.toString());
-          localStorage.setItem('nombre', usuarioEncontrado.nombre);
-          localStorage.setItem('apellido', usuarioEncontrado.apellido);
+          localStorage.setItem('userId', usuarioEncontrado._id);
           return usuarioEncontrado;
         } else {
           throw new Error('Credenciales incorrectas');
@@ -96,9 +93,41 @@ export class AuthService {
     return localStorage.getItem('userId');
   }
 
-  getNombreCompleto(): string {
-    const nombre = localStorage.getItem('nombre') || '';
-    const apellido = localStorage.getItem('apellido') || '';
-    return `${nombre} ${apellido}`;
+  // controlar el tiempo de la sesion
+  private timeoutId: any;
+
+  startAutoLogout(minutes: number = 10): void {
+    const ms = minutes * 60 * 1000;
+
+    // Limpiar timeout previo si existe
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+
+    // Registrar eventos del usuario
+    this.registerActivityListeners(ms);
+  }
+
+  private registerActivityListeners(timeout: number) {
+    const resetTimer = () => {
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+      }
+
+      this.timeoutId = setTimeout(() => {
+        this.logout();
+        alert('Sesión expirada por inactividad.');
+        window.location.href = '/login';
+      }, timeout);
+    };
+
+    // Listado de eventos que reinician el contador
+    ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(
+      (event) => {
+        window.addEventListener(event, resetTimer);
+      }
+    );
+
+    resetTimer(); // Inicia el primer conteo
   }
 }
