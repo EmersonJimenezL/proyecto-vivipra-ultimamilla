@@ -1,4 +1,3 @@
-// Importación de decoradores y módulos desde Angular core y Angular Material
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -18,12 +17,10 @@ import { SharedModule } from '../../shared/shared.module';
 import { MatDialog } from '@angular/material/dialog';
 import { AsignarDespachoModalComponent } from '../asignar-despacho-modal/asignar-despacho-modal.component';
 
-// Decorador que define un componente Angular
 @Component({
-  selector: 'app-available-view', // Selector para usar el componente en HTML
-  standalone: true, // Indica que este componente es autónomo, no necesita declararse en un módulo
+  selector: 'app-available-view',
+  standalone: true,
   imports: [
-    // Módulos que este componente importa para su funcionamiento
     CommonModule,
     MatTableModule,
     MatButtonModule,
@@ -38,64 +35,43 @@ import { AsignarDespachoModalComponent } from '../asignar-despacho-modal/asignar
     MatSortModule,
     SharedModule,
   ],
-  templateUrl: './available-view.component.html', // Ruta al archivo de plantilla HTML
-  styleUrl: './available-view.component.scss', // Ruta a los estilos del componente
+  templateUrl: './available-view.component.html',
+  styleUrl: './available-view.component.scss',
 })
 export class AvailableViewComponent implements OnInit {
-  // Lista de columnas que se mostrarán en la tabla
   displayedColumns: string[] = [
-    'select', // Checkbox de selección
-    'FolioNum', // Número de folio
-    'CodCliente', // Código/RUT del cliente
-    'NombreCliente', // Nombre del cliente
-    'FechaDocumento', // Fecha de la factura
-    'HoraCreacion', // Hora de creación del documento
-    'Direccion', // Dirección del cliente
-    'Comentarios', // Comentarios asociados
+    'select',
+    'FolioNum',
+    'CodCliente',
+    'NombreCliente',
+    'FechaDocumento',
+    'HoraCreacion',
+    'Direccion',
+    'Comentarios',
   ];
 
-  // Fuente de datos de la tabla, tipo MatTableDataSource
-  // Permite aplicar paginación, ordenamiento, filtrado, etc.
   dataSource = new MatTableDataSource<any>([]);
-
-  // Modelo de selección para manejar qué filas están seleccionadas
-  // El `true` permite seleccionar múltiples filas al mismo tiempo
   selection = new SelectionModel<any>(true, []);
-
-  // Set que almacena los folios que ya han sido despachados
-  // Se usa para evitar volver a mostrarlos o duplicarlos
   despachosExistentes: Set<string> = new Set();
 
-  // Referencias a los componentes paginator y sort
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // Inyección del servicio AuthService, que maneja llamadas a la API
   constructor(private authService: AuthService, private dialog: MatDialog) {}
 
-  // Método que se ejecuta al iniciar el componente
   ngOnInit(): void {
-    this.chargeData(); // Llama a la función que carga los datos
+    this.chargeData();
   }
 
-  // Método que obtiene los despachos y luego carga la vista
-  // Carga tanto la vista como los despachos de Mongo y filtra los repetidos
   chargeData(): void {
-    // Paso 1: Obtener los datos de despachos desde Mongo
     this.authService.getDataDispatch().subscribe({
       next: (despachosMongo) => {
-        // Paso 2: Crear Set de folios válidos convertidos a número
         const foliosDespachados = new Set(
           despachosMongo
-            .map((d: any) => Number(d.folio)) // Convertimos a número
-            .filter((folio: number) => !isNaN(folio)) // Solo válidos
+            .map((d: any) => Number(d.folio))
+            .filter((folio: number) => !isNaN(folio))
         );
 
-        console.log('Folios válidos desde Mongo (despachados):', [
-          ...foliosDespachados,
-        ]);
-
-        // Paso 3: Obtener los datos desde la vista de SAP
         this.authService.getData().subscribe({
           next: (dataVista) => {
             dataVista.forEach((item: any) => {
@@ -108,17 +84,10 @@ export class AvailableViewComponent implements OnInit {
               item._fechaHoraCompleta = fecha;
             });
 
-            // Paso 4: Filtrar datos que NO están en la lista de folios ya despachados
             const datosFiltrados = dataVista.filter(
               (item: any) => !foliosDespachados.has(Number(item.FolioNum))
             );
 
-            console.log(
-              'Datos visibles (filtrados):',
-              datosFiltrados.map((d: any) => d.FolioNum)
-            );
-
-            // Paso 5: Asignar a la tabla
             this.dataSource = new MatTableDataSource(datosFiltrados);
 
             this.dataSource.sortingDataAccessor = (item, property) => {
@@ -149,76 +118,11 @@ export class AvailableViewComponent implements OnInit {
     });
   }
 
-  // Obtiene los datos desde la API y los prepara para mostrarlos en tabla
-  getDataView(): void {
-    this.authService.getData().subscribe({
-      next: (data) => {
-        // Procesamos cada ítem de los datos recibidos
-        data.forEach((item: any) => {
-          // Convertimos el campo FechaDocumento a un objeto Date
-          const fecha = new Date(item.FechaDocumento);
-
-          // Nos aseguramos que HoraCreacion tenga 6 dígitos (ej. 90015 → 090015)
-          const padded = item.HoraCreacion.toString().padStart(6, '0');
-
-          // Extraemos hora, minutos y segundos
-          const horas = parseInt(padded.substring(0, 2), 10);
-          const minutos = parseInt(padded.substring(2, 4), 10);
-          const segundos = parseInt(padded.substring(4, 6), 10);
-
-          // Asignamos la hora completa a la fecha
-          fecha.setHours(horas, minutos, segundos);
-
-          // Creamos una propiedad auxiliar para ordenar por fecha+hora
-          item._fechaHoraCompleta = fecha;
-
-          // Imprime en consola todos los datos con su nueva propiedad
-          // console.log(data);
-        });
-
-        // Filtramos los datos para mostrar solo los que NO están en despachos
-        const datosFiltrados = data.filter(
-          (item: any) => !this.despachosExistentes.has(item.FolioNum)
-        );
-
-        // Asignamos los datos filtrados a la tabla
-        this.dataSource = new MatTableDataSource(datosFiltrados);
-
-        // Configuramos el ordenamiento para usar _fechaHoraCompleta en la columna FechaDocumento
-        this.dataSource.sortingDataAccessor = (item, property) => {
-          if (property === 'FechaDocumento') {
-            return item._fechaHoraCompleta;
-          }
-          return item[property];
-        };
-
-        // Asignamos el objeto sort a la tabla
-        this.dataSource.sort = this.sort;
-
-        // Después de un pequeño delay, activamos el orden descendente por FechaDocumento
-        setTimeout(() => {
-          this.sort.active = 'FechaDocumento';
-          this.sort.direction = 'desc';
-          this.sort.sortChange.emit({
-            active: 'FechaDocumento',
-            direction: 'desc',
-          });
-        });
-
-        // Asignamos el paginador a la tabla
-        this.dataSource.paginator = this.paginator;
-      },
-      error: (error) => console.error('Error al obtener datos:', error),
-    });
-  }
-
-  // Filtra la tabla en tiempo real según el texto ingresado por el usuario
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  // Verifica si todos los elementos visibles están seleccionados
   isAllSelected() {
     const filteredData = this.dataSource.filteredData;
     return (
@@ -227,11 +131,8 @@ export class AvailableViewComponent implements OnInit {
     );
   }
 
-  // Selecciona o deselecciona todas las filas visibles en la tabla
   toggleAllRows(event: any) {
     const filteredData = this.dataSource.filteredData;
-
-    // `event.checked` es true si el checkbox "seleccionar todos" está marcado
     if (event.checked) {
       this.selection.select(...filteredData);
     } else {
@@ -239,24 +140,38 @@ export class AvailableViewComponent implements OnInit {
     }
   }
 
-  // Alterna la selección de una fila (marca o desmarca)
   toggleRow(row: any) {
     this.selection.toggle(row);
   }
 
-  // Envía las filas seleccionadas al backend como nuevos despachos
+  // Función que formatea la fecha en formato local YYYY-MM-DD
+  private formatFechaLocal(fecha: Date): string {
+    return `${fecha.getFullYear()}-${(fecha.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')}`;
+  }
+
+  // Función que formatea la hora en formato local HH:mm:ss
+  private formatHoraLocal(fecha: Date): string {
+    return `${fecha.getHours().toString().padStart(2, '0')}:${fecha
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
+  }
+
   async addToDispatch() {
     const selected = this.selection.selected;
     if (selected.length === 0) return;
 
     const hoy = new Date();
-    const fechaFormateada = hoy.toISOString().split('T')[0];
-    const horaFormateada = hoy.toTimeString().split(' ')[0];
+    const fechaFormateada = this.formatFechaLocal(hoy);
+    const horaFormateada = this.formatHoraLocal(hoy);
 
-    const requests: any[] = [];
+    const requests: Promise<any>[] = [];
+    const foliosExitosos: string[] = [];
 
     for (const item of selected) {
-      const tipoEntrega = await this.dialog
+      const result = await this.dialog
         .open(AsignarDespachoModalComponent, {
           data: { folio: item.FolioNum },
           disableClose: true,
@@ -264,9 +179,12 @@ export class AvailableViewComponent implements OnInit {
         .afterClosed()
         .toPromise();
 
-      if (!tipoEntrega) {
-        alert('Asignación cancelada.');
-        return;
+      // Si el usuario cancela, pasamos al siguiente sin hacer nada
+      if (!result) {
+        alert(
+          `Asignación cancelada para el despacho con folio ${item.FolioNum}.`
+        );
+        continue;
       }
 
       const payload = {
@@ -277,25 +195,38 @@ export class AvailableViewComponent implements OnInit {
         direccion: item.Direccion,
         horaAsignacion: horaFormateada,
         fechaAsignacion: fechaFormateada,
-        comentarios: item.Comentarios,
-        tipoEntrega: tipoEntrega,
-        chofer: 'Tralalero Tralala', // pendiente de implementación
+        comentariosAsignacion: item.Comentarios,
+        tipoEntrega: result,
+        chofer: 'Tralalero Tralala',
         patente: 'xxxxxx',
-        asignadoPor: 'bombardiro crocodilo', // pendiente de autenticación
+        asignadoPor: 'bombardiro crocodilo',
       };
 
-      requests.push(firstValueFrom(this.authService.saveData(payload)));
+      requests.push(
+        firstValueFrom(this.authService.saveData(payload)).then(() => {
+          foliosExitosos.push(item.FolioNum);
+        })
+      );
     }
 
     try {
       await Promise.all(requests);
-      alert('Despachos creados correctamente');
 
-      selected.forEach((item) => {
-        this.despachosExistentes.add(item.FolioNum);
+      if (foliosExitosos.length > 0) {
+        alert(
+          `Se registraron ${foliosExitosos.length} despacho(s) correctamente.`
+        );
+      }
+
+      // Marcamos solo los folios exitosos como despachados
+      foliosExitosos.forEach((folio) => {
+        this.despachosExistentes.add(folio);
       });
 
+      // Limpiamos la selección
       this.selection.clear();
+
+      // Quitamos solo los despachados exitosamente
       this.dataSource.data = this.dataSource.data.filter(
         (item: any) => !this.despachosExistentes.has(item.FolioNum)
       );
