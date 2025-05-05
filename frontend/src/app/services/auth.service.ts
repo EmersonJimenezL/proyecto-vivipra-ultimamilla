@@ -6,40 +6,53 @@ import { Observable, map } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
+  // Se una variable con la url de la vista conectada con SAPHanna
+  private endPointView = 'http://192.168.200.80:3000/data/FactDespacho';
+
   // Se una variable con la url de la API conectada con MongoDB
   private endPointMongo = 'http://192.168.200.80:3005/despachos';
 
-  // Se una variable con la url de la vista conectada con SAPHanna
-  private endPointView = 'http://192.168.200.80:3000/data/FactDespacho';
+  //extension para modificar las entregas
+  private endPointMongoIdEntrega = '/entregar';
+
+  // endpoint para actualizar los datos en la primera fase
+  private endPointMongoId = '/despachar';
 
   // endpoint encargado de traer la informacion de la tabla de usuarios
   private endPointUser = 'http://192.168.200.80:3005/usuarios';
 
-  // endpoint para actualizar los datos
-  private endPointMongoId = '/despachar';
-
   // inyectar el servicio HttpClient en el constructor
   constructor(private http: HttpClient) {}
 
-  // metodo para obtener los datos de la vista creada en SAPHanna
+  // metodo para obtener los datos de la vista creada en SAPHanna (Solo para consumir)
   getData(): Observable<any> {
     return this.http.get(this.endPointView);
   }
 
-  // metodo para inyectar datos a la API conectada con MongoDB
+  // metodo para inyectar los datos obtenidos a traves de la vista en la tabla de despacho (datos core)
   saveData(data: any): Observable<any> {
     return this.http.post(this.endPointMongo, data);
   }
 
-  // metodo para obtener los datos de la API conectada con MongoDB
+  // metodo para obtener los datos de la API conectada con MongoDB (tabla de despachos)
   getDataDispatch(): Observable<any> {
     return this.http.get(this.endPointMongo);
   }
 
   // metodo para actualizar los campos faltantes de la API conectada con MongoDB
+  // los primeros datos que se modificaran en esta vista, son los datos asociados al chofer, asigandoPor etc...
   setDataDistpatch(id: number, data: any): Observable<any> {
     return this.http.patch(
       `${this.endPointMongo}/${id}${this.endPointMongoId}`,
+      data
+    );
+  }
+
+  // metodo para actualizar los campos faltantes de la entrega,
+  // rutEntrega, comentarioEntrega,firma
+  setDataDispatchDelivered(id: number, data: any): Observable<any> {
+    return this.http.patch(
+      `${this.endPointMongo}/${id}${this.endPointMongoIdEntrega}`,
       data
     );
   }
@@ -63,7 +76,7 @@ export class AuthService {
 
         if (usuarioEncontrado) {
           localStorage.setItem('nombre', usuarioEncontrado.nombreUsuario);
-          localStorage.setItem('token', 'falso-token');
+          localStorage.setItem('token', 'falso-token'); // token de prueba
           localStorage.setItem('rol', usuarioEncontrado.rol);
           localStorage.setItem('userId', usuarioEncontrado._id);
           return usuarioEncontrado;

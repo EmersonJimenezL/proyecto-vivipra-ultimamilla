@@ -193,9 +193,7 @@ export class AvailableViewComponent implements OnInit {
         rutCliente: item['Cod.Cliente'],
         estado: 'Despacho',
         direccion: item.Direccion,
-        horaAsignacion: horaFormateada,
-        fechaAsignacion: fechaFormateada,
-        comentariosAsignacion: item.Comentarios,
+        comentarioDespacho: item.Comentarios,
         tipoEntrega: result.tipoEntrega, // desde modal
         chofer: result.chofer, // desde modal
         patente: 'xxxxxx', // será completada luego por el chofer
