@@ -14,6 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AceptarRutaModalComponent } from '../aceptar-ruta-modal/aceptar-ruta-modal.component';
 
 @Component({
   selector: 'app-login',
@@ -27,6 +29,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
+    MatDialogModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -34,6 +37,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = true;
+  loading = false;
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -50,15 +54,16 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.loginForm = this.fb.group({
       nombre_usuario: ['', Validators.required],
       contrasenna: ['', Validators.required],
     });
   }
-  loading = false;
-  // funcionalidad que se encarga de, enviar y validar las credenciales de inicio de sesion
+
+  // Método onSubmit actualizado con lógica de redirección según rol
   onSubmit() {
     if (this.loginForm.valid) {
       this.loading = true;
@@ -67,12 +72,24 @@ export class LoginComponent {
       this.authService.login(nombre_usuario, contrasenna).subscribe({
         next: () => {
           this.loading = false;
-          this.authService.startAutoLogout(); //cierre automatico
+          this.authService.startAutoLogout();
 
           const rol = this.authService.getRol();
+          const userId = this.authService.getUserId();
 
           if (rol === 'chofer') {
-            this.router.navigate(['/dispatch-view']);
+            const dialogRef = this.dialog.open(AceptarRutaModalComponent, {
+              disableClose: true,
+              data: { id: userId },
+            });
+
+            dialogRef.afterClosed().subscribe((accepted: boolean | null) => {
+              if (accepted) {
+                this.router.navigate(['/dispatch-view']);
+              } else {
+                this.authService.logout(); // cancela sesión si se cerró el modal sin aceptar
+              }
+            });
           } else {
             this.router.navigate(['/available-view']);
           }

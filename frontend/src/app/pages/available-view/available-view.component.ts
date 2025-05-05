@@ -195,10 +195,10 @@ export class AvailableViewComponent implements OnInit {
         estado: 'Despacho',
         direccion: item.Direccion,
         comentarioDespacho: item.Comentarios,
-        // segundo endpoint
+        fechaAsignacion: fechaFormateada,
+        horaAsignacion: horaFormateada,
         tipoEntrega: result.tipoEntrega, // desde modal
         chofer: result.chofer, // desde modal
-        patente: 'xxxxxx', // será completada luego por el chofer
         asignadoPor: this.authService.getNombreUsuario(), // pendiente de login
       };
 

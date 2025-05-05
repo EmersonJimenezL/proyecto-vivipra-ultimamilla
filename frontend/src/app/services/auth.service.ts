@@ -12,11 +12,11 @@ export class AuthService {
   // Se una variable con la url de la API conectada con MongoDB
   private endPointMongo = 'http://192.168.200.80:3005/despachos';
 
-  //extension para modificar las entregas
-  private endPointMongoIdEntrega = '/entregar';
-
   // endpoint para actualizar los datos de la tabla despachos en la primera fase
   private endPointMongoId = '/despachar';
+
+  //extension para modificar las entregas
+  private endPointMongoIdEntrega = '/entregar';
 
   // endpoint encargado de traer la informacion de la tabla de usuarios
   private endPointUser = 'http://192.168.200.80:3005/usuarios';

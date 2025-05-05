@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-aceptar-ruta-modal',
@@ -14,31 +15,38 @@ import { AuthService } from '../../services/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatDialogModule,
+    MatInputModule,
     MatButtonModule,
   ],
   templateUrl: './aceptar-ruta-modal.component.html',
-  styleUrls: ['./aceptar-ruta-modal.component.scss'],
+  styleUrl: './aceptar-ruta-modal.component.scss',
 })
 export class AceptarRutaModalComponent implements OnInit {
   patente: string = '';
 
   constructor(
     private dialogRef: MatDialogRef<AceptarRutaModalComponent>,
-    private autServices: AuthService
+    @Inject(MAT_DIALOG_DATA) public data: { id: number }
   ) {}
 
-  ngOnInit(): void {
-    this.autServices.setDataDistpatch(0, '');
+  ngOnInit(): void {}
+
+  confirmar(): void {
+    if (!this.patente.trim()) {
+      alert('Por favor ingresa una patente válida.');
+      return;
+    }
+
+    // Guardar la patente en localStorage para uso posterior (por ejemplo en delivered-form)
+    localStorage.setItem('patente', this.patente);
+
+    // Cerrar el modal con respuesta positiva
+    this.dialogRef.close(true);
   }
 
-  onAccept() {
-    this.dialogRef.close(this.patente);
-  }
-
-  onCancel() {
+  cancelar(): void {
+    // Cerrar el modal sin acción
     this.dialogRef.close(null);
   }
 }

@@ -196,6 +196,7 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
 
     // Obtenemos la firma como imagen base64
     const signature = this.getSignatureDataURL();
+    const patente = localStorage.getItem('patente') || '';
 
     // Combinamos ambos datos para enviarlos al backend
     const dataToSend = {
@@ -203,6 +204,7 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
       nombreEntrega: nombreEntrega,
       comentarioEntrega: comentarioEntrega,
       firma: signature,
+      patente: patente,
     };
     console.log('datos a enviar: ', dataToSend);
 
