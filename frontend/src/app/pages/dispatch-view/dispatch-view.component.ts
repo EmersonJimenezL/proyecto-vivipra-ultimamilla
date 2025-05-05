@@ -17,8 +17,8 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { SelectionModel } from '@angular/cdk/collections';
 import {
-  BreakpointObserver, // Observa el tamaño de pantalla
-  Breakpoints, // Conjunto de puntos de corte predefinidos (como móvil, tablet, etc.)
+  BreakpointObserver,
+  Breakpoints,
   LayoutModule,
 } from '@angular/cdk/layout';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -29,9 +29,10 @@ import { AuthService } from '../../services/auth.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalMapComponent } from '../modal-map/modal-map.component';
+import { AceptarRutaModalComponent } from '../aceptar-ruta-modal/aceptar-ruta-modal.component';
 
 @Component({
-  selector: 'app-dispatch-view', // Selector HTML del componente
+  selector: 'app-dispatch-view',
   standalone: true,
   imports: [
     CommonModule,
@@ -49,76 +50,69 @@ import { ModalMapComponent } from '../modal-map/modal-map.component';
     LayoutModule,
     MatDialogModule,
   ],
-  templateUrl: './dispatch-view.component.html', // Vista asociada
-  styleUrl: './dispatch-view.component.scss', // Estilos asociados
+  templateUrl: './dispatch-view.component.html',
+  styleUrl: './dispatch-view.component.scss',
 })
 export class DispatchViewComponent implements OnInit {
-  // Columnas que se van a mostrar en la tabla
   displayedColumns: string[] = [
     'folio',
     'rutCliente',
     'nombreCliente',
     'Direccion',
     'mapa',
-    'Entrega', // Botón o acción para realizar la entrega
+    'Entrega',
   ];
 
-  // Fuente de datos de la tabla
   dataSource = new MatTableDataSource<any>([]);
-
-  // Modelo para seleccionar filas (aunque no se está usando aquí aún)
   selection = new SelectionModel<any>(true, []);
-
-  // Almacena qué elemento está expandido (para vista móvil)
   expandedItem: any = null;
-
-  // Flag para saber si estamos en pantalla móvil
   isMobile = false;
 
-  // Referencias al paginador y ordenamiento de la tabla
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private authService: AuthService, // Servicio para obtener datos del backend
-    private breakpointObserver: BreakpointObserver, // Detecta si estamos en móvil/tablet
-    private router: Router, // Para navegar entre rutas
+    private authService: AuthService,
+    private breakpointObserver: BreakpointObserver,
+    private router: Router,
     private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
-    // Observa si el dispositivo es "Handset" (móvil)
     this.breakpointObserver
       .observe([Breakpoints.Handset])
       .subscribe((result) => {
-        this.isMobile = result.matches; // Si estamos en móvil, se activa el flag
+        this.isMobile = result.matches;
       });
 
-    // Cargamos los datos para la tabla
     this.getData();
   }
 
-  // Carga los datos de los despachos desde el backend
-
   getData() {
-    this.authService.getDataDispatch().subscribe({
-      // next: se ejecuta cuando recibimos respuesta correcta
-      next: (data) => {
-        // Creamos una nueva fuente de datos con los datos recibidos
-        this.dataSource = new MatTableDataSource(data);
+    const rol = this.authService.getRol();
+    const nombreChofer = this.authService.getNombreUsuario();
 
-        // Configuramos el ordenamiento personalizado
+    this.authService.getDataDispatch().subscribe({
+      next: (data) => {
+        let despachosFiltrados = data;
+
+        if (rol === 'chofer') {
+          despachosFiltrados = data.filter(
+            (d: any) => d.chofer?.toLowerCase() === nombreChofer.toLowerCase()
+          );
+        }
+
+        this.dataSource = new MatTableDataSource(despachosFiltrados);
+
         this.dataSource.sortingDataAccessor = (item, property) => {
           if (property === 'FechaDocumento') {
-            return item._fechaHoraCompleta; // Usamos una propiedad auxiliar si existe
+            return item._fechaHoraCompleta;
           }
           return item[property];
         };
 
-        // Asignamos el ordenador a la tabla
         this.dataSource.sort = this.sort;
 
-        // Definimos un orden inicial después de un pequeño delay
         setTimeout(() => {
           this.sort.active = 'FechaDocumento';
           this.sort.direction = 'desc';
@@ -128,40 +122,28 @@ export class DispatchViewComponent implements OnInit {
           });
         });
 
-        // Asignamos el paginador
         this.dataSource.paginator = this.paginator;
       },
-      // error: si ocurre algún fallo al traer los datos
       error: (error) => console.error('Error al obtener datos:', error),
     });
   }
 
-  // Activa o desactiva la expansión de un ítem (modo responsive móvil)
   toggleExpansion(item: any) {
-    // Si el item ya está expandido, lo colapsamos. Si no, lo expandimos.
     this.expandedItem = this.expandedItem === item ? null : item;
   }
 
-  // Aplica filtro a la tabla con lo que escribe el usuario
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  // Navega a la vista del formulario de entrega con los datos del despacho seleccionado
   delivered(despacho: any): void {
-    console.log('ID del despacho (antes de navegar):', despacho);
-
-    // Creamos un objeto `NavigationExtras` que incluye el despacho en el estado
     const extras: NavigationExtras = {
       state: { despacho },
     };
-
-    // Navegamos al formulario de entrega, pasando el estado con los datos
     this.router.navigate(['/delivered-form'], extras);
   }
 
-  // A brir el mapa, que contendra la ubicacion del despacho que se asigna
   abrirMapa(direccion: string): void {
     this.dialog.open(ModalMapComponent, {
       width: '600px',

@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Aceptar Ruta</h2>
+<mat-dialog-content>
+  <p>¿Aceptas esta ruta de despacho?</p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Patente del vehículo</mat-label>
+    <input matInput [(ngModel)]="patente" />
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!patente"
+    (click)="onAccept()"
+  >
+    Aceptar
+  </button>
+</mat-dialog-actions>

@@ -15,7 +15,7 @@ export class AuthService {
   //extension para modificar las entregas
   private endPointMongoIdEntrega = '/entregar';
 
-  // endpoint para actualizar los datos en la primera fase
+  // endpoint para actualizar los datos de la tabla despachos en la primera fase
   private endPointMongoId = '/despachar';
 
   // endpoint encargado de traer la informacion de la tabla de usuarios

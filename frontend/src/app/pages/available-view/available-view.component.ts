@@ -188,12 +188,14 @@ export class AvailableViewComponent implements OnInit {
       }
 
       const payload = {
+        // primer endpoint que es el POST.
         folio: item.FolioNum,
         nombreCliente: item.NombreCliente,
         rutCliente: item['Cod.Cliente'],
         estado: 'Despacho',
         direccion: item.Direccion,
         comentarioDespacho: item.Comentarios,
+        // segundo endpoint
         tipoEntrega: result.tipoEntrega, // desde modal
         chofer: result.chofer, // desde modal
         patente: 'xxxxxx', // será completada luego por el chofer
