@@ -15,6 +15,8 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { firstValueFrom } from 'rxjs';
 import { SharedModule } from '../../shared/shared.module';
+import { MatDialog } from '@angular/material/dialog';
+import { AsignarDespachoModalComponent } from '../asignar-despacho-modal/asignar-despacho-modal.component';
 
 // Decorador que define un componente Angular
 @Component({
@@ -69,7 +71,7 @@ export class AvailableViewComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   // Inyección del servicio AuthService, que maneja llamadas a la API
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private dialog: MatDialog) {}
 
   // Método que se ejecuta al iniciar el componente
   ngOnInit(): void {
@@ -247,21 +249,26 @@ export class AvailableViewComponent implements OnInit {
     const selected = this.selection.selected;
     if (selected.length === 0) return;
 
-    // Obtenemos la fecha y hora actual en formato legible
     const hoy = new Date();
-    const fechaFormateada = `${hoy.getFullYear()}-${(hoy.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${hoy.getDate().toString().padStart(2, '0')}`;
-    const horaFormateada = `${hoy.getHours().toString().padStart(2, '0')}:${hoy
-      .getMinutes()
-      .toString()
-      .padStart(2, '0')}:${hoy.getSeconds().toString().padStart(2, '0')}`;
+    const fechaFormateada = hoy.toISOString().split('T')[0];
+    const horaFormateada = hoy.toTimeString().split(' ')[0];
 
-    // Creamos un array para guardar todas las solicitudes al backend
     const requests: any[] = [];
 
-    selected.forEach((item) => {
-      // Creamos el cuerpo (payload) de la solicitud
+    for (const item of selected) {
+      const tipoEntrega = await this.dialog
+        .open(AsignarDespachoModalComponent, {
+          data: { folio: item.FolioNum },
+          disableClose: true,
+        })
+        .afterClosed()
+        .toPromise();
+
+      if (!tipoEntrega) {
+        alert('Asignación cancelada.');
+        return;
+      }
+
       const payload = {
         folio: item.FolioNum,
         nombreCliente: item.NombreCliente,
@@ -270,35 +277,25 @@ export class AvailableViewComponent implements OnInit {
         direccion: item.Direccion,
         horaAsignacion: horaFormateada,
         fechaAsignacion: fechaFormateada,
-        // comentarios: item.Comentarios,
-        tipoEntrega: 'RM',
-        chofer: 'Tralalero Tralala',
+        comentarios: item.Comentarios,
+        tipoEntrega: tipoEntrega,
+        chofer: 'Tralalero Tralala', // pendiente de implementación
         patente: 'xxxxxx',
-        asignadoPor: 'bombardiro crocodilo',
+        asignadoPor: 'bombardiro crocodilo', // pendiente de autenticación
       };
 
-      console.log('Enviando payload:', payload);
-
-      // Guardamos la promesa para luego ejecutarlas todas juntas
       requests.push(firstValueFrom(this.authService.saveData(payload)));
-    });
+    }
 
     try {
-      // Promise.all ejecuta todas las promesas al mismo tiempo y espera que todas terminen
-      // Si alguna falla, cae al bloque catch
       await Promise.all(requests);
-
       alert('Despachos creados correctamente');
 
-      // Marcamos los folios como despachados para no volver a mostrarlos
       selected.forEach((item) => {
         this.despachosExistentes.add(item.FolioNum);
       });
 
-      // Quitamos la selección
       this.selection.clear();
-
-      // Filtramos la tabla para ocultar los ya despachados
       this.dataSource.data = this.dataSource.data.filter(
         (item: any) => !this.despachosExistentes.has(item.FolioNum)
       );

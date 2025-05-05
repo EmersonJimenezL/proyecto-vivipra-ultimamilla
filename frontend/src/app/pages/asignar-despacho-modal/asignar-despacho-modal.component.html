@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Asignar despacho</h2>
+
+<mat-dialog-content>
+  <p><strong>Folio:</strong> {{ data.folio }}</p>
+
+  <p><strong>Tipo de entrega:</strong></p>
+  <div style="display: flex; gap: 1rem; margin-bottom: 1rem">
+    <button mat-raised-button color="primary" (click)="seleccionar('Interno')">
+      Interno
+    </button>
+    <button mat-raised-button color="accent" (click)="seleccionar('Externo')">
+      Externo
+    </button>
+  </div>
+
+  <p style="color: gray">(Próximamente: selección de chofer aquí)</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+</mat-dialog-actions>

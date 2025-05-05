@@ -15,6 +15,9 @@ export class AuthService {
   // endpoint encargado de traer la informacion de la tabla de usuarios
   private endPointUser = 'http://192.168.200.80:3000/data/usuario';
 
+  // endpoint para actualizar los datos
+  private endPointMongoId = '/despachar';
+
   // inyectar el servicio HttpClient en el constructor
   constructor(private http: HttpClient) {}
 
@@ -35,7 +38,10 @@ export class AuthService {
 
   // metodo para actualizar los campos faltantes de la API conectada con MongoDB
   setDataDistpatch(id: number, data: any): Observable<any> {
-    return this.http.patch(`${this.endPointMongo}/${id}`, data);
+    return this.http.patch(
+      `${this.endPointMongo}/${id}${this.endPointMongoId}`,
+      data
+    );
   }
 
   getRol(): string | null {
