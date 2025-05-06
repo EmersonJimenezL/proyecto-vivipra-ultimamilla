@@ -97,8 +97,11 @@ export class DispatchViewComponent implements OnInit {
         let despachosFiltrados = data;
 
         if (rol === 'chofer') {
+          // FILTRAMOS por chofer Y por estado === 'Despacho'
           despachosFiltrados = data.filter(
-            (d: any) => d.chofer?.toLowerCase() === nombreChofer.toLowerCase()
+            (d: any) =>
+              d.chofer?.toLowerCase() === nombreChofer.toLowerCase() &&
+              d.estado === 'Despacho'
           );
         }
 
