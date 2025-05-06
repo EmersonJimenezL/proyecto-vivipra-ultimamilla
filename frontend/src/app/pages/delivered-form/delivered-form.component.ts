@@ -5,6 +5,7 @@ import {
   AfterViewInit,
   ViewChild,
   ElementRef,
+  afterNextRender,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -198,12 +199,24 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     const signature = this.getSignatureDataURL();
     const patente = localStorage.getItem('patente') || '';
 
+    console.log(signature);
+
+    // Obtenemos la fecha y hora de despacho desde el local storage
+    const fechaDespacho = localStorage.getItem('fechaDespacho');
+    const horaDespacho = localStorage.getItem('horaDespacho');
+
+    // Payload en el cual inyectamos los datos en formato JSON
+    const payload = {
+      fechaDespacho: fechaDespacho,
+      horaDespacho: horaDespacho,
+    };
+
     // Combinamos ambos datos para enviarlos al backend
     const dataToSend = {
       rutEntrega: rutEntrega,
       nombreEntrega: nombreEntrega,
       comentarioEntrega: comentarioEntrega,
-      firma: signature,
+      imagenEntrega: signature,
       patente: patente,
     };
     console.log('datos a enviar: ', dataToSend);
@@ -211,6 +224,16 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     // Enviamos los datos usando el servicio
     this.authService.setDataDispatchDelivered(_id, dataToSend).subscribe({
       next: () => {
+        // Utilizamos el servicio encargado de modificar estos campos en la base de datos
+        this.authService.setDataDistpatch(_id, payload).subscribe({
+          next: () => {
+            console.log('datos enviados', payload);
+          },
+          error: (err) => {
+            // Si ocurre un error, lo mostramos en consola y alertamos al usuario
+            console.error('Error al guardar la entrega:', err);
+          },
+        });
         // Si todo sale bien, limpiamos el formulario y la firma
         alert('Entrega registrada con éxito');
         this.deliveredForm.reset();

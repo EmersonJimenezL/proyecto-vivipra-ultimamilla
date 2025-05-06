@@ -57,12 +57,14 @@ export class AuthService {
     );
   }
 
-  getRol(): string | null {
-    return localStorage.getItem('rol');
-  }
-
+  // Metodo para poder obtener los datos de la tabla de usuarios
   getDataUser(): Observable<any> {
     return this.http.get(this.endPointUser);
+  }
+
+  //Metodo para obtener el rol del usuario (no funcional)
+  getRol(): string | null {
+    return localStorage.getItem('rol');
   }
 
   // estas fuuncionalidades estaran destinadas al login de la pagina

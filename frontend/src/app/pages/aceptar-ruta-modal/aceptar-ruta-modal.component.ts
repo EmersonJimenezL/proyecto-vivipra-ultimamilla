@@ -30,6 +30,19 @@ export class AceptarRutaModalComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: { id: number }
   ) {}
 
+  private formatFechaLocal(fecha: Date): string {
+    return `${fecha.getFullYear()}-${(fecha.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')}`;
+  }
+
+  // Función que formatea la hora en formato local HH:mm:ss
+  private formatHoraLocal(fecha: Date): string {
+    return `${fecha.getHours().toString().padStart(2, '0')}:${fecha
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
+  }
   ngOnInit(): void {}
 
   confirmar(): void {
@@ -38,8 +51,14 @@ export class AceptarRutaModalComponent implements OnInit {
       return;
     }
 
+    const hoy = new Date();
+    const fechaFormateada = this.formatFechaLocal(hoy);
+    const horaFormateada = this.formatHoraLocal(hoy);
+
     // Guardar la patente en localStorage para uso posterior (por ejemplo en delivered-form)
     localStorage.setItem('patente', this.patente);
+    localStorage.setItem('horaDespacho', fechaFormateada);
+    localStorage.setItem('fechaDespacho', horaFormateada);
 
     // Cerrar el modal con respuesta positiva
     this.dialogRef.close(true);
