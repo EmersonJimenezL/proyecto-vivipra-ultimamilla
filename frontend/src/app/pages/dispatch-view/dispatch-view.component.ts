@@ -140,6 +140,13 @@ export class DispatchViewComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
+  abrirMapa(direccion: string): void {
+    this.dialog.open(ModalMapComponent, {
+      width: '600px',
+      data: { direccion },
+    });
+  }
+
   delivered(despacho: any): void {
     const extras: NavigationExtras = {
       state: { despacho },
@@ -147,12 +154,6 @@ export class DispatchViewComponent implements OnInit {
     this.router.navigate(['/delivered-form'], extras);
   }
 
-  abrirMapa(direccion: string): void {
-    this.dialog.open(ModalMapComponent, {
-      width: '600px',
-      data: { direccion },
-    });
-  }
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');

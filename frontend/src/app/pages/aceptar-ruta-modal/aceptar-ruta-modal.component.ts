@@ -45,8 +45,15 @@ export class AceptarRutaModalComponent implements OnInit {
   }
 
   confirmar(): void {
+    const formatoPatente = /^[A-Z]{2}-[A-Z]{2}-\d{2}$/;
+
     if (!this.patente.trim()) {
       alert('Por favor ingresa una patente válida.');
+      return;
+    }
+
+    if (!formatoPatente.test(this.patente.trim().toUpperCase())) {
+      alert('La patente ingresada no tiene un formato válido. Ej: AB-12-CD');
       return;
     }
 

@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
+import { rutValidator } from '../../shared/validators/rut.validator';
 
 import { AuthService } from '../../services/auth.service';
 
@@ -60,7 +61,7 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
       nombreCliente: [despacho?.nombreCliente || '', Validators.required],
       direccion: [despacho?.direccion || '', Validators.required],
       comentario: [despacho?.comentarioDespacho || ''],
-      rutEntrega: ['', Validators.required],
+      rutEntrega: ['', [Validators.required, rutValidator]],
       nombreEntrega: ['', Validators.required],
       comentarioEntrega: [''],
     });
