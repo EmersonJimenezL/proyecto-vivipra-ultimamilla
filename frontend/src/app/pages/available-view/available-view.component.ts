@@ -16,6 +16,7 @@ import { firstValueFrom } from 'rxjs';
 import { SharedModule } from '../../shared/shared.module';
 import { MatDialog } from '@angular/material/dialog';
 import { AsignarDespachoModalComponent } from '../asignar-despacho-modal/asignar-despacho-modal.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-available-view',
@@ -57,7 +58,11 @@ export class AvailableViewComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private authService: AuthService, private dialog: MatDialog) {}
+  constructor(
+    private authService: AuthService,
+    private dialog: MatDialog,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.chargeData();
@@ -233,5 +238,13 @@ export class AvailableViewComponent implements OnInit {
         'Hubo un error al crear los despachos. Por favor, inténtelo de nuevo.'
       );
     }
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('rol');
+    localStorage.removeItem('userId');
+    localStorage.clear();
+    this.router.navigate(['/login']);
   }
 }

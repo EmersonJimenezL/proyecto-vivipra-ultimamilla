@@ -150,4 +150,11 @@ export class DispatchViewComponent implements OnInit {
       data: { direccion },
     });
   }
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('rol');
+    localStorage.removeItem('userId');
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
 }

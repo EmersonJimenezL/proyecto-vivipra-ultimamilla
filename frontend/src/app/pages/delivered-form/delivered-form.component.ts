@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
 
 import { AuthService } from '../../services/auth.service';
 
@@ -28,6 +29,7 @@ import { AuthService } from '../../services/auth.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIcon,
   ],
   templateUrl: './delivered-form.component.html',
   styleUrls: ['./delivered-form.component.scss'],
@@ -190,5 +192,13 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
         alert('Error al guardar la entrega');
       },
     });
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('rol');
+    localStorage.removeItem('userId');
+    localStorage.clear();
+    this.router.navigate(['/login']);
   }
 }
