@@ -1,13 +1,10 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogRef,
-  MatDialogModule,
-} from '@angular/material/dialog';
+import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-aceptar-ruta-modal',
@@ -24,26 +21,28 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class AceptarRutaModalComponent implements OnInit {
   patente: string = '';
+  despachos: any[] = [];
 
   constructor(
     private dialogRef: MatDialogRef<AceptarRutaModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { id: number }
+    private authService: AuthService
   ) {}
 
-  private formatFechaLocal(fecha: Date): string {
-    return `${fecha.getFullYear()}-${(fecha.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')}`;
-  }
+  ngOnInit(): void {
+    const choferId = localStorage.getItem('nombre');
 
-  // Función que formatea la hora en formato local HH:mm:ss
-  private formatHoraLocal(fecha: Date): string {
-    return `${fecha.getHours().toString().padStart(2, '0')}:${fecha
-      .getMinutes()
-      .toString()
-      .padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
+    this.authService.getDataDispatch().subscribe({
+      next: (data: any[]) => {
+        // Filtrar solo los que están en estado 'Despacho'
+        this.despachos = data.filter(
+          (d) => d.chofer === choferId && d.estado === 'Despacho'
+        );
+      },
+      error: (err) => {
+        console.error('Error al obtener despachos:', err);
+      },
+    });
   }
-  ngOnInit(): void {}
 
   confirmar(): void {
     if (!this.patente.trim()) {
@@ -51,21 +50,41 @@ export class AceptarRutaModalComponent implements OnInit {
       return;
     }
 
-    const hoy = new Date();
-    const fechaFormateada = this.formatFechaLocal(hoy);
-    const horaFormateada = this.formatHoraLocal(hoy);
+    const ahora = new Date();
 
-    // Guardar la patente en localStorage para uso posterior (por ejemplo en delivered-form)
+    // Guardar valores en localStorage (por si se usan en otro componente)
     localStorage.setItem('patente', this.patente);
-    localStorage.setItem('horaDespacho', fechaFormateada);
-    localStorage.setItem('fechaDespacho', horaFormateada);
+    localStorage.setItem('fechaDespacho', ahora.toISOString());
+    localStorage.setItem('horaDespacho', ahora.toISOString());
 
-    // Cerrar el modal con respuesta positiva
+    if (this.despachos.length === 0) {
+      console.warn(
+        '⚠️ No hay despachos en estado "Despacho" para este chofer.'
+      );
+    }
+
+    this.despachos.forEach((despacho) => {
+      const payload = {
+        fechaDespacho: ahora,
+        horaDespacho: ahora,
+      };
+
+      console.log('🔄 Enviando a despacho:', despacho._id, payload);
+
+      this.authService.setDataDistpatch(despacho._id, payload).subscribe({
+        next: () => {
+          console.log(` Despacho ${despacho._id} actualizado`);
+        },
+        error: (err) => {
+          console.error(` Error al actualizar despacho ${despacho._id}:`, err);
+        },
+      });
+    });
+
     this.dialogRef.close(true);
   }
 
   cancelar(): void {
-    // Cerrar el modal sin acción
     this.dialogRef.close(null);
   }
 }
