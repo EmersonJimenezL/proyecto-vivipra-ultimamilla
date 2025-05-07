@@ -1,4 +1,10 @@
 <div class="modal-container">
-  <h2>Firma del despacho</h2>
+  <div class="modal-header">
+    <h2>Firma del despacho</h2>
+    <button mat-icon-button (click)="dialogRef.close()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
   <img [src]="data.imagen" alt="Firma" class="firma-img" />
 </div>

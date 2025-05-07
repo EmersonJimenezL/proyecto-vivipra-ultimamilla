@@ -76,7 +76,7 @@ export class AceptarRutaModalComponent implements OnInit {
         horaDespacho: ahora,
       };
 
-      console.log('🔄 Enviando a despacho:', despacho._id, payload);
+      //console.log(' Enviando a despacho:', despacho._id, payload);
 
       this.authService.setDataDistpatch(despacho._id, payload).subscribe({
         next: () => {

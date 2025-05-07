@@ -41,7 +41,7 @@ export class LoginComponent {
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       const rol = this.authService.getRol();
-      console.log(rol);
+      //console.log(rol);
 
       if (rol === 'chofer') {
         this.router.navigate(['/dispatch-view']);
