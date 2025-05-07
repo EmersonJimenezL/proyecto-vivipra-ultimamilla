@@ -1,3 +1,4 @@
+// Importación de decoradores de Angular y módulos necesarios
 import {
   Component,
   OnInit,
@@ -17,9 +18,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
-import { rutValidator } from '../../shared/validators/rut.validator';
+import { rutValidator } from '../../shared/validators/rut.validator'; // Validador personalizado de RUT
 
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service'; // Servicio para interactuar con la API
 
 @Component({
   selector: 'app-delivered-form',
@@ -36,14 +37,16 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./delivered-form.component.scss'],
 })
 export class DeliveredFormComponent implements OnInit, AfterViewInit {
-  deliveredForm!: FormGroup;
+  deliveredForm!: FormGroup; // Formulario reactivo para los datos del despacho
 
+  // Referencia al canvas donde se dibuja la firma
   @ViewChild('signaturePad')
   signaturePadElement!: ElementRef<HTMLCanvasElement>;
 
+  // Variables internas para controlar el canvas de la firma
   private ctx!: CanvasRenderingContext2D;
-  private drawing = false;
-  private hasDrawn = false;
+  private drawing = false; // Estado actual: si el usuario está dibujando
+  private hasDrawn = false; // Indica si el usuario realmente firmó
 
   constructor(
     private fb: FormBuilder,
@@ -51,32 +54,38 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     private router: Router
   ) {}
 
+  // Inicializa el formulario y carga datos desde el state
   ngOnInit(): void {
     const despacho = history.state.despacho;
     const id = despacho._id;
 
+    // Se inicializa el formulario con valores predeterminados
     this.deliveredForm = this.fb.group({
       folio: [despacho?.folio || '', Validators.required],
       rutCliente: [despacho?.rutCliente || '', Validators.required],
       nombreCliente: [despacho?.nombreCliente || '', Validators.required],
       direccion: [despacho?.direccion || '', Validators.required],
       comentario: [despacho?.comentarioDespacho || ''],
-      rutEntrega: ['', [Validators.required, rutValidator]],
+      rutEntrega: ['', [Validators.required, rutValidator]], // Valida RUT
       nombreEntrega: ['', Validators.required],
       comentarioEntrega: [''],
     });
   }
 
+  // Configura el canvas para capturar la firma una vez renderizado
   ngAfterViewInit(): void {
     const canvas = this.signaturePadElement.nativeElement;
     this.ctx = canvas.getContext('2d')!;
     canvas.width = canvas.offsetWidth;
     canvas.height = 120;
+
+    // Estilos del trazo
     this.ctx.strokeStyle = '#ff9800';
     this.ctx.lineWidth = 2;
     this.ctx.lineCap = 'round';
-    canvas.style.touchAction = 'none';
+    canvas.style.touchAction = 'none'; // Previene scroll mientras se dibuja
 
+    // Eventos para ratón y pantalla táctil
     canvas.addEventListener('mousedown', this.startDrawing.bind(this));
     canvas.addEventListener('mousemove', this.draw.bind(this));
     canvas.addEventListener('mouseup', this.finishDrawing.bind(this));
@@ -89,9 +98,11 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     });
     canvas.addEventListener('touchend', this.finishDrawing.bind(this));
 
+    // Muestra texto de guía "Firme aquí"
     this.drawGuideText();
   }
 
+  // Obtiene la posición del evento (mouse o touch) relativa al canvas
   private getPosition(event: MouseEvent | TouchEvent): {
     x: number;
     y: number;
@@ -110,6 +121,7 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     return { x: clientX - rect.left, y: clientY - rect.top };
   }
 
+  // Inicia el dibujo
   startDrawing(event: MouseEvent | TouchEvent): void {
     event.preventDefault();
     this.drawing = true;
@@ -119,6 +131,7 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     this.ctx.moveTo(x, y);
   }
 
+  // Dibuja la línea mientras el mouse o dedo se mueve
   draw(event: MouseEvent | TouchEvent): void {
     if (!this.drawing) return;
     event.preventDefault();
@@ -127,10 +140,12 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     this.ctx.stroke();
   }
 
+  // Termina el trazo
   finishDrawing(): void {
     this.drawing = false;
   }
 
+  // Limpia la firma y reinicia guía
   clearSignature(): void {
     const canvas = this.signaturePadElement.nativeElement;
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -138,6 +153,7 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     this.hasDrawn = false;
   }
 
+  // Dibuja el texto de "Firme aquí" en el centro
   private drawGuideText(): void {
     this.ctx.font = '16px sans-serif';
     this.ctx.fillStyle = '#999';
@@ -149,10 +165,12 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     );
   }
 
+  // Convierte el contenido del canvas a una imagen (Base64)
   getSignatureDataURL(): string {
     return this.signaturePadElement.nativeElement.toDataURL();
   }
 
+  // Lógica de envío del formulario
   onSubmit(): void {
     const { _id } = history.state.despacho;
 
@@ -166,27 +184,31 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    // Obtiene los valores del formulario
     const formValue = this.deliveredForm.getRawValue();
     const { rutEntrega, nombreEntrega, comentarioEntrega } = formValue;
 
+    // Obtiene la firma del canvas y la patente desde el localStorage
     const signature = this.getSignatureDataURL();
     const patente = localStorage.getItem('patente') || '';
 
+    // Cuerpo del objeto a enviar
     const dataToSend = {
-      estado: 'Entregado', // aquí sí se cambia el estado
+      estado: 'Entregado', // Cambia el estado del despacho
       rutEntrega,
       nombreEntrega,
       comentarioEntrega,
-      imagenEntrega: signature,
+      imagenEntrega: signature, // Firma como imagen base64
       patente,
     };
 
+    // Envia los datos al backend
     this.authService.setDataDispatchDelivered(_id, dataToSend).subscribe({
       next: () => {
         alert('Entrega registrada con éxito');
         this.deliveredForm.reset();
-        this.clearSignature();
-        this.router.navigate(['/despachos']);
+        this.clearSignature(); // Limpia firma
+        this.router.navigate(['/despachos']); // Redirige al listado
       },
       error: (err) => {
         console.error('Error al guardar la entrega:', err);
@@ -195,6 +217,7 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // Cierra sesión del usuario
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');

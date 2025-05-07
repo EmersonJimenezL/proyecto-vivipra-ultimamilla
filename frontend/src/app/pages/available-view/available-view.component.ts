@@ -1,3 +1,4 @@
+// Importaciones necesarias de Angular y Angular Material
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -40,6 +41,7 @@ import { Router } from '@angular/router';
   styleUrl: './available-view.component.scss',
 })
 export class AvailableViewComponent implements OnInit {
+  // Columnas a mostrar en la tabla de datos
   displayedColumns: string[] = [
     'select',
     'FolioNum',
@@ -51,12 +53,12 @@ export class AvailableViewComponent implements OnInit {
     'Comentarios',
   ];
 
-  dataSource = new MatTableDataSource<any>([]);
-  selection = new SelectionModel<any>(true, []);
-  despachosExistentes: Set<string> = new Set();
+  dataSource = new MatTableDataSource<any>([]); // Fuente de datos de la tabla
+  selection = new SelectionModel<any>(true, []); // Selección múltiple de filas
+  despachosExistentes: Set<string> = new Set(); // Set para evitar reinsertar folios ya despachados
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator; // Control de paginación
+  @ViewChild(MatSort) sort!: MatSort; // Control de ordenamiento
 
   constructor(
     private authService: AuthService,
@@ -65,12 +67,14 @@ export class AvailableViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.chargeData();
+    this.chargeData(); // Carga los datos al iniciar el componente
   }
 
+  // Carga los datos desde Mongo y la vista SAP, luego los filtra y transforma
   chargeData(): void {
     this.authService.getDataDispatch().subscribe({
       next: (despachosMongo) => {
+        // Extrae los folios ya asignados como despacho para filtrarlos
         const foliosDespachados = new Set(
           despachosMongo
             .map((d: any) => Number(d.folio))
@@ -79,6 +83,7 @@ export class AvailableViewComponent implements OnInit {
 
         this.authService.getData().subscribe({
           next: (dataVista) => {
+            // Transforma hora de creación a formato completo con fecha
             dataVista.forEach((item: any) => {
               const fecha = new Date(item.FechaDocumento);
               const padded = item.HoraCreacion.toString().padStart(6, '0');
@@ -86,23 +91,28 @@ export class AvailableViewComponent implements OnInit {
               const minutos = parseInt(padded.substring(2, 4), 10);
               const segundos = parseInt(padded.substring(4, 6), 10);
               fecha.setHours(horas, minutos, segundos);
-              item._fechaHoraCompleta = fecha;
+              item._fechaHoraCompleta = fecha; // Campo auxiliar para ordenar
             });
 
+            // Filtra los datos para excluir los ya despachados
             const datosFiltrados = dataVista.filter(
               (item: any) => !foliosDespachados.has(Number(item.FolioNum))
             );
 
+            // Asigna y configura la fuente de datos
             this.dataSource = new MatTableDataSource(datosFiltrados);
 
+            // Establece cómo ordenar por la fecha completa
             this.dataSource.sortingDataAccessor = (item, property) => {
               if (property === 'FechaDocumento') {
                 return item._fechaHoraCompleta;
               }
               return item[property];
             };
+
             this.dataSource.sort = this.sort;
 
+            // Ordenamiento por defecto: fecha descendente
             setTimeout(() => {
               this.sort.active = 'FechaDocumento';
               this.sort.direction = 'desc';
@@ -123,11 +133,13 @@ export class AvailableViewComponent implements OnInit {
     });
   }
 
+  // Filtro para la tabla en tiempo real
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
+  // Verifica si todas las filas visibles están seleccionadas
   isAllSelected() {
     const filteredData = this.dataSource.filteredData;
     return (
@@ -136,6 +148,7 @@ export class AvailableViewComponent implements OnInit {
     );
   }
 
+  // Selecciona o deselecciona todas las filas visibles
   toggleAllRows(event: any) {
     const filteredData = this.dataSource.filteredData;
     if (event.checked) {
@@ -145,18 +158,19 @@ export class AvailableViewComponent implements OnInit {
     }
   }
 
+  // Alterna la selección de una sola fila
   toggleRow(row: any) {
     this.selection.toggle(row);
   }
 
-  // Función que formatea la fecha en formato local YYYY-MM-DD
+  // Formatea una fecha a formato YYYY-MM-DD
   private formatFechaLocal(fecha: Date): string {
     return `${fecha.getFullYear()}-${(fecha.getMonth() + 1)
       .toString()
       .padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')}`;
   }
 
-  // Función que formatea la hora en formato local HH:mm:ss
+  // Formatea una hora a formato HH:mm:ss
   private formatHoraLocal(fecha: Date): string {
     return `${fecha.getHours().toString().padStart(2, '0')}:${fecha
       .getMinutes()
@@ -164,6 +178,7 @@ export class AvailableViewComponent implements OnInit {
       .padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
   }
 
+  // Asigna los elementos seleccionados como despachos mediante un modal
   async addToDispatch() {
     const selected = this.selection.selected;
     if (selected.length === 0) return;
@@ -176,6 +191,7 @@ export class AvailableViewComponent implements OnInit {
     const foliosExitosos: string[] = [];
 
     for (const item of selected) {
+      // Abre el modal para seleccionar tipo de entrega y chofer
       const result = await this.dialog
         .open(AsignarDespachoModalComponent, {
           data: { folio: item.FolioNum },
@@ -184,7 +200,7 @@ export class AvailableViewComponent implements OnInit {
         .afterClosed()
         .toPromise();
 
-      // Si el usuario cancela, pasamos al siguiente sin hacer nada
+      // Si el usuario cancela, pasa al siguiente ítem
       if (!result) {
         alert(
           `Asignación cancelada para el despacho con folio ${item.FolioNum}.`
@@ -192,8 +208,8 @@ export class AvailableViewComponent implements OnInit {
         continue;
       }
 
+      // Prepara el payload a enviar al backend
       const payload = {
-        // primer endpoint que es el POST.
         folio: item.FolioNum,
         nombreCliente: item.NombreCliente,
         rutCliente: item['Cod.Cliente'],
@@ -202,11 +218,12 @@ export class AvailableViewComponent implements OnInit {
         comentarioDespacho: item.Comentarios,
         fechaAsignacion: fechaFormateada,
         horaAsignacion: horaFormateada,
-        tipoEntrega: result.tipoEntrega, // desde modal
-        chofer: result.chofer, // desde modal
-        asignadoPor: this.authService.getNombreUsuario(), // pendiente de login
+        tipoEntrega: result.tipoEntrega,
+        chofer: result.chofer,
+        asignadoPor: this.authService.getNombreUsuario(),
       };
 
+      // Agrega la petición a la lista de promesas
       requests.push(
         firstValueFrom(this.authService.saveData(payload)).then(() => {
           foliosExitosos.push(item.FolioNum);
@@ -223,6 +240,7 @@ export class AvailableViewComponent implements OnInit {
         );
       }
 
+      // Elimina los ítems ya despachados de la tabla
       foliosExitosos.forEach((folio) => {
         this.despachosExistentes.add(folio);
       });
@@ -240,6 +258,7 @@ export class AvailableViewComponent implements OnInit {
     }
   }
 
+  // Cierra sesión y redirige al login
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
