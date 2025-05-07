@@ -1,3 +1,4 @@
+// Importaciones necesarias desde Angular, Angular Material y módulos del proyecto
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -19,8 +20,8 @@ import { FirmaModalComponent } from '../firma-modal/firma-modal.component';
 import { CdkTableModule } from '@angular/cdk/table';
 
 @Component({
-  selector: 'app-admin-view',
-  standalone: true,
+  selector: 'app-admin-view', // Selector del componente
+  standalone: true, // Componente independiente
   imports: [
     CommonModule,
     MatTableModule,
@@ -37,10 +38,11 @@ import { CdkTableModule } from '@angular/cdk/table';
     SharedModule,
     CdkTableModule,
   ],
-  templateUrl: './admin-view.component.html',
-  styleUrl: './admin-view.component.scss',
+  templateUrl: './admin-view.component.html', // Vista HTML del componente
+  styleUrl: './admin-view.component.scss', // Estilos CSS del componente
 })
 export class AdminViewComponent implements OnInit {
+  // Columnas visibles de la tabla
   displayedColumns: string[] = [
     'folio',
     'rutCliente',
@@ -61,41 +63,45 @@ export class AdminViewComponent implements OnInit {
     'imagenEntrega',
   ];
 
-  dataSource = new MatTableDataSource<any>([]);
-  selection = new SelectionModel<any>(true, []);
-  despachosExistentes: Set<string> = new Set();
+  dataSource = new MatTableDataSource<any>([]); // Fuente de datos de la tabla
+  selection = new SelectionModel<any>(true, []); // Permite selección múltiple en la tabla
+  despachosExistentes: Set<string> = new Set(); // Set para evitar duplicados (si se usa)
 
+  // Referencias a paginador y ordenamiento de la tabla
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private authService: AuthService,
-    private dialog: MatDialog,
-    private router: Router
+    private authService: AuthService, // Servicio para obtener datos del backend
+    private dialog: MatDialog, // Servicio para abrir diálogos (modales)
+    private router: Router // Navegación entre vistas
   ) {}
 
   ngOnInit(): void {
-    this.chargeData();
+    this.chargeData(); // Carga los datos al iniciar
   }
 
+  // Método para obtener los datos de despachos desde el backend
   chargeData(): void {
     this.authService.getDataDispatch().subscribe({
       next: (despachosMongo) => {
         let despachos = despachosMongo;
-        this.dataSource = new MatTableDataSource(despachos);
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
+        this.dataSource = new MatTableDataSource(despachos); // Se asignan los datos
+        this.dataSource.sort = this.sort; // Habilita ordenamiento
+        this.dataSource.paginator = this.paginator; // Habilita paginación
       },
       error: (error) =>
         console.error('Error al obtener datos desde Mongo:', error),
     });
   }
 
+  // Aplica filtro de texto a la tabla (por cualquier campo visible)
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.dataSource.filter = filterValue.trim().toLowerCase(); // Normaliza el texto
   }
 
+  // Verifica si todas las filas visibles están seleccionadas
   isAllSelected() {
     const filteredData = this.dataSource.filteredData;
     return (
@@ -104,23 +110,27 @@ export class AdminViewComponent implements OnInit {
     );
   }
 
+  // Selecciona o deselecciona todas las filas filtradas
   toggleAllRows(event: any) {
     const filteredData = this.dataSource.filteredData;
     if (event.checked) {
-      this.selection.select(...filteredData);
+      this.selection.select(...filteredData); // Selecciona todas
     } else {
-      this.selection.deselect(...filteredData);
+      this.selection.deselect(...filteredData); // Deselecciona todas
     }
   }
 
+  // Alterna la selección de una fila individual
   toggleRow(row: any) {
     this.selection.toggle(row);
   }
 
+  // Mejora el rendimiento en el *ngFor con trackBy usando el folio
   trackByFolio(index: number, item: any): string {
     return item.folio;
   }
 
+  // Abre el modal para visualizar la firma (imagenEntrega)
   abrirModalFirma(imagen: string): void {
     this.dialog.open(FirmaModalComponent, {
       data: { imagen },
@@ -129,11 +139,12 @@ export class AdminViewComponent implements OnInit {
     });
   }
 
+  // Cierra sesión y limpia el almacenamiento local
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
     localStorage.removeItem('userId');
-    localStorage.clear();
-    this.router.navigate(['/login']);
+    localStorage.clear(); // Limpieza general por seguridad
+    this.router.navigate(['/login']); // Redirige al login
   }
 }
