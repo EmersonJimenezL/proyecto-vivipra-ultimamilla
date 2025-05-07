@@ -67,6 +67,10 @@ export class AuthService {
     return localStorage.getItem('rol');
   }
 
+  getNombre(): string | null {
+    return localStorage.getItem('nombre');
+  }
+
   // estas fuuncionalidades estaran destinadas al login de la pagina
   login(nombre_usuario: string, contrasenna: string): Observable<any> {
     return this.http.get<any[]>(this.endPointUser).pipe(

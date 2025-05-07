@@ -79,19 +79,50 @@ export class LoginComponent {
 
           const rol = this.authService.getRol();
           const userId = this.authService.getUserId();
+          const nombre = this.authService.getNombre(); // nombre del chofer
 
           if (rol === 'chofer') {
-            const dialogRef = this.dialog.open(AceptarRutaModalComponent, {
-              disableClose: true,
-              data: { id: userId },
-            });
+            // ✅ Validar que tenga despachos pendientes antes de abrir el modal
+            this.authService.getDataDispatch().subscribe({
+              next: (data: any[]) => {
+                const despachos = data.filter(
+                  (d) => d.chofer === nombre && d.estado === 'Despacho'
+                );
 
-            dialogRef.afterClosed().subscribe((accepted: boolean | null) => {
-              if (accepted) {
-                this.router.navigate(['/dispatch-view']);
-              } else {
-                this.authService.logout(); // cancela sesión si se cerró el modal sin aceptar
-              }
+                if (despachos.length === 0) {
+                  this.snackBar.open(
+                    'No tienes despachos pendientes asignados.',
+                    'Cerrar',
+                    { duration: 4000, panelClass: ['snackbar-error'] }
+                  );
+                  this.authService.logout(); // evita que quede sesión iniciada
+                  return;
+                }
+
+                const dialogRef = this.dialog.open(AceptarRutaModalComponent, {
+                  disableClose: true,
+                  data: { id: userId },
+                });
+
+                dialogRef
+                  .afterClosed()
+                  .subscribe((accepted: boolean | null) => {
+                    if (accepted) {
+                      this.router.navigate(['/dispatch-view']);
+                    } else {
+                      this.authService.logout(); // cancela sesión si se cerró el modal sin aceptar
+                    }
+                  });
+              },
+              error: (err) => {
+                console.error('Error al verificar despachos:', err);
+                this.snackBar.open(
+                  'Error al verificar despachos. Intenta nuevamente.',
+                  'Cerrar',
+                  { duration: 4000, panelClass: ['snackbar-error'] }
+                );
+                this.authService.logout(); // por seguridad
+              },
             });
           } else if (rol === 'admin') {
             this.router.navigate(['/admin-view']);

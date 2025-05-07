@@ -33,7 +33,6 @@ export class AceptarRutaModalComponent implements OnInit {
 
     this.authService.getDataDispatch().subscribe({
       next: (data: any[]) => {
-        // Filtrar solo los que están en estado 'Despacho'
         this.despachos = data.filter(
           (d) => d.chofer === choferId && d.estado === 'Despacho'
         );
@@ -42,6 +41,31 @@ export class AceptarRutaModalComponent implements OnInit {
         console.error('Error al obtener despachos:', err);
       },
     });
+  }
+
+  // ✅ Agregado: función para formatear la patente automáticamente
+  formatearPatente(): void {
+    let raw = this.patente.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    raw = raw.slice(0, 6);
+
+    const letras = raw.slice(0, 4);
+    const numeros = raw.slice(4);
+
+    let formatted = '';
+    if (letras.length >= 2) {
+      formatted += letras.slice(0, 2);
+      if (letras.length >= 4) {
+        formatted += '-' + letras.slice(2, 4);
+      }
+    } else {
+      formatted += letras;
+    }
+
+    if (numeros.length > 0) {
+      formatted += '-' + numeros;
+    }
+
+    this.patente = formatted;
   }
 
   confirmar(): void {
@@ -53,21 +77,20 @@ export class AceptarRutaModalComponent implements OnInit {
     }
 
     if (!formatoPatente.test(this.patente.trim().toUpperCase())) {
-      alert('La patente ingresada no tiene un formato válido. Ej: AB-12-CD');
+      alert('La patente ingresada no tiene un formato válido. Ej: AB-CD-12');
       return;
     }
 
     const ahora = new Date();
 
-    // Guardar valores en localStorage (por si se usan en otro componente)
     localStorage.setItem('patente', this.patente);
     localStorage.setItem('fechaDespacho', ahora.toISOString());
     localStorage.setItem('horaDespacho', ahora.toISOString());
 
     if (this.despachos.length === 0) {
-      console.warn(
-        '⚠️ No hay despachos en estado "Despacho" para este chofer.'
-      );
+      alert('No existen despachos pendientes');
+      console.warn(' No hay despachos en estado "Despacho" para este chofer.');
+      return;
     }
 
     this.despachos.forEach((despacho) => {
@@ -75,8 +98,6 @@ export class AceptarRutaModalComponent implements OnInit {
         fechaDespacho: ahora,
         horaDespacho: ahora,
       };
-
-      //console.log(' Enviando a despacho:', despacho._id, payload);
 
       this.authService.setDataDistpatch(despacho._id, payload).subscribe({
         next: () => {
