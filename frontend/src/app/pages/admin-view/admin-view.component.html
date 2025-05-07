@@ -1,0 +1,162 @@
+<button mat-button color="warn" (click)="logout()">
+  <mat-icon>logout</mat-icon>
+  Cerrar sesión
+</button>
+
+<div class="mat-elevation-z4" style="overflow-x: auto">
+  <div class="search-bar-container">
+    <div>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Buscar" />
+      </mat-form-field>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        align-items: center;
+        padding: 0px 30px;
+      "
+    >
+      <img src="assets/vivipra.png" alt="vivipra" style="width: 100px" />
+    </div>
+  </div>
+
+  <div class="desktop-view">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      class="mat-table"
+      matSort
+      matSortActive="folio"
+      matSortDirection="asc"
+      matSortDisableClear
+      [trackBy]="trackByFolio"
+    >
+      <ng-container matColumnDef="folio">
+        <th mat-header-cell *matHeaderCellDef>Folio</th>
+        <td mat-cell *matCellDef="let despacho">{{ despacho.folio }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="rutCliente">
+        <th mat-header-cell *matHeaderCellDef>RUT Cliente</th>
+        <td mat-cell *matCellDef="let despacho">{{ despacho.rutCliente }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="nombreCliente">
+        <th mat-header-cell *matHeaderCellDef>Nombre Cliente</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.nombreCliente }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="tipoEntrega">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo entrega</th>
+        <td mat-cell *matCellDef="let despacho">{{ despacho.tipoEntrega }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="rutEntrega">
+        <th mat-header-cell *matHeaderCellDef>rut entrega</th>
+        <td mat-cell *matCellDef="let despacho">{{ despacho.rutEntrega }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="nombreEntrega">
+        <th mat-header-cell *matHeaderCellDef>Nombre entrega</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.nombreEntrega }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="chofer">
+        <th mat-header-cell *matHeaderCellDef>Chofer</th>
+        <td mat-cell *matCellDef="let despacho">{{ despacho.chofer }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="patente">
+        <th mat-header-cell *matHeaderCellDef>Patente</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.patente | uppercase }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="asignadoPor">
+        <th mat-header-cell *matHeaderCellDef>Asignado por</th>
+        <td mat-cell *matCellDef="let despacho">{{ despacho.asignadoPor }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="fechaAsignacion">
+        <th mat-header-cell *matHeaderCellDef>Fecha asignación</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.fechaAsignacion | date : "shortDate" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="horaAsignacion">
+        <th mat-header-cell *matHeaderCellDef>Hora asignación</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.horaAsignacion }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="fechaDespacho">
+        <th mat-header-cell *matHeaderCellDef>Fecha despacho</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.fechaDespacho | date : "shortDate" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="horaDespacho">
+        <th mat-header-cell *matHeaderCellDef>Hora despacho</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.horaDespacho }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="fechaEntrega">
+        <th mat-header-cell *matHeaderCellDef>Fecha entrega</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.fechaEntrega | date : "shortDate" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="horaEntrega">
+        <th mat-header-cell *matHeaderCellDef>Hora entrega</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.horaEntrega }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="comentarioEntrega">
+        <th mat-header-cell *matHeaderCellDef>Comentario</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.comentarioEntrega }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="imagenEntrega">
+        <th mat-header-cell *matHeaderCellDef>Firma</th>
+        <td mat-cell *matCellDef="let despacho">
+          <button
+            mat-button
+            color="primary"
+            (click)="abrirModalFirma(despacho.imagenEntrega)"
+          >
+            Ver firma
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSize]="8"
+      [pageSizeOptions]="[8, 10, 15, 20]"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
+</div>

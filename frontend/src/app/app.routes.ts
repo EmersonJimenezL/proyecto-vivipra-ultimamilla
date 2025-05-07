@@ -6,6 +6,7 @@ import { DispatchViewComponent } from './pages/dispatch-view/dispatch-view.compo
 import { DeliveredFormComponent } from './pages/delivered-form/delivered-form.component';
 import { ModalMapComponent } from './pages/modal-map/modal-map.component';
 import { UnauthorizedComponentComponent } from './pages/unauthorized-component/unauthorized-component.component';
+import { AdminViewComponent } from './pages/admin-view/admin-view.component';
 
 export const routes: Routes = [
   {
@@ -22,7 +23,7 @@ export const routes: Routes = [
       import('./pages/available-view/available-view.component').then(
         (m) => m.AvailableViewComponent
       ),
-    canActivate: [authGuard(['admin', 'bodega'])],
+    canActivate: [authGuard(['bodega'])],
   },
   {
     path: 'dispatch-view',
@@ -37,11 +38,16 @@ export const routes: Routes = [
   {
     path: 'modal-map',
     component: ModalMapComponent,
-    canActivate: [authGuard(['admin'])],
+    canActivate: [authGuard(['admin', 'chofer'])],
   },
   {
     path: 'unauthorized-component',
     component: UnauthorizedComponentComponent,
+  },
+  {
+    path: 'admin-view',
+    component: AdminViewComponent,
+    canActivate: [authGuard(['admin', 'bodega'])],
   },
   { path: '**', redirectTo: '/login' },
 ];

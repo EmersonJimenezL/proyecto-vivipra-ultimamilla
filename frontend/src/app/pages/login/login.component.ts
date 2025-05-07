@@ -16,7 +16,6 @@ import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AceptarRutaModalComponent } from '../aceptar-ruta-modal/aceptar-ruta-modal.component';
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -42,8 +41,12 @@ export class LoginComponent {
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       const rol = this.authService.getRol();
+      console.log(rol);
+
       if (rol === 'chofer') {
         this.router.navigate(['/dispatch-view']);
+      } else if (rol === 'admin') {
+        this.router.navigate(['/admin-view']);
       } else {
         this.router.navigate(['/available-view']);
       }
@@ -90,6 +93,8 @@ export class LoginComponent {
                 this.authService.logout(); // cancela sesión si se cerró el modal sin aceptar
               }
             });
+          } else if (rol === 'admin') {
+            this.router.navigate(['/admin-view']);
           } else {
             this.router.navigate(['/available-view']);
           }
