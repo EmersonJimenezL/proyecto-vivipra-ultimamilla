@@ -163,29 +163,10 @@ export class AvailableViewComponent implements OnInit {
     this.selection.toggle(row);
   }
 
-  // Formatea una fecha a formato YYYY-MM-DD
-  private formatFechaLocal(fecha: Date): string {
-    return `${fecha.getFullYear()}-${(fecha.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}-${fecha.getDate().toString().padStart(2, '0')}`;
-  }
-
-  // Formatea una hora a formato HH:mm:ss
-  private formatHoraLocal(fecha: Date): string {
-    return `${fecha.getHours().toString().padStart(2, '0')}:${fecha
-      .getMinutes()
-      .toString()
-      .padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
-  }
-
   // Asigna los elementos seleccionados como despachos mediante un modal
   async addToDispatch() {
     const selected = this.selection.selected;
     if (selected.length === 0) return;
-
-    const hoy = new Date();
-    const fechaFormateada = this.formatFechaLocal(hoy);
-    const horaFormateada = this.formatHoraLocal(hoy);
 
     const requests: Promise<any>[] = [];
     const foliosExitosos: string[] = [];
