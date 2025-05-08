@@ -55,6 +55,7 @@ export class AdminViewComponent implements OnInit {
     'fechaAsignacion',
     'fechaDespacho',
     'fechaEntrega',
+    'tiempoTranscurrido',
     'comentarioEntrega',
     'imagenEntrega',
   ];
@@ -79,12 +80,51 @@ export class AdminViewComponent implements OnInit {
     this.chargeDespachosActivos();
   }
 
+  combinarFechaHora(fecha: string, hora: string): Date | null {
+    if (
+      !fecha ||
+      !hora ||
+      hora.toLowerCase().includes('sin') ||
+      hora.trim() === ''
+    ) {
+      return null;
+    }
+
+    const combinada = `${fecha}T${hora}`;
+    const fechaValida = new Date(combinada);
+    return isNaN(fechaValida.getTime()) ? null : fechaValida;
+  }
+
+  calcularDiferencia(inicio: Date | null, fin: Date | null): string {
+    if (!inicio || !fin) return '---';
+
+    const diffMs = fin.getTime() - inicio.getTime();
+    if (isNaN(diffMs) || diffMs < 0) return '---';
+
+    const diffMins = Math.floor(diffMs / 60000);
+    const hours = Math.floor(diffMins / 60);
+    const minutes = diffMins % 60;
+
+    return `${hours}h ${minutes}m`;
+  }
+
   chargeData(): void {
     this.authService.getDataDispatch().subscribe({
       next: (despachosMongo) => {
         const entregados = despachosMongo.filter(
           (d: any) => d.estado === 'Entregado'
         );
+
+        // Calcular tiempo transcurrido entre asignación y entrega
+        entregados.forEach((d: any) => {
+          const inicio = d.fechaAsignacion ? new Date(d.fechaAsignacion) : null;
+          const fin = d.fechaEntrega ? new Date(d.fechaEntrega) : null;
+
+          console.log('inicio:', inicio, 'fin:', fin);
+
+          d.tiempoTranscurrido = this.calcularDiferencia(inicio, fin);
+        });
+
         this.dataSource = new MatTableDataSource(entregados);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;

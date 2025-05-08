@@ -122,6 +122,13 @@
         </td>
       </ng-container>
 
+      <ng-container matColumnDef="tiempoTranscurrido">
+        <th mat-header-cell *matHeaderCellDef>Tiempo</th>
+        <td mat-cell *matCellDef="let despacho">
+          {{ despacho.tiempoTranscurrido }}
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="comentarioEntrega">
         <th mat-header-cell *matHeaderCellDef>Comentario</th>
         <td mat-cell *matCellDef="let despacho">
@@ -181,9 +188,9 @@
     </ng-container>
 
     <!-- Patente -->
-    <ng-container matColumnDef="patente">
-      <th mat-header-cell *matHeaderCellDef>Patente</th>
-      <td mat-cell *matCellDef="let despacho">{{ despacho.patente }}</td>
+    <ng-container matColumnDef="rutCliente">
+      <th mat-header-cell *matHeaderCellDef>RUT cliente</th>
+      <td mat-cell *matCellDef="let despacho">{{ despacho.rutCliente }}</td>
     </ng-container>
 
     <!-- Botón Eliminar -->
@@ -203,13 +210,13 @@
     <!-- Filas -->
     <tr
       mat-header-row
-      *matHeaderRowDef="['folio', 'nombreCliente', 'patente', 'acciones']"
+      *matHeaderRowDef="['folio', 'nombreCliente', 'rutCliente', 'acciones']"
     ></tr>
     <tr
       mat-row
       *matRowDef="
         let row;
-        columns: ['folio', 'nombreCliente', 'patente', 'acciones']
+        columns: ['folio', 'nombreCliente', 'rutCliente', 'acciones']
       "
     ></tr>
   </table>
