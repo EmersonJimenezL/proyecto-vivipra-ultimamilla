@@ -62,6 +62,10 @@ export class AuthService {
     return this.http.get(this.endPointUser);
   }
 
+  deleteDispatch(folio: number) {
+    return this.http.delete(this.endPointUser);
+  }
+
   //Metodo para obtener el rol del usuario (no funcional)
   getRol(): string | null {
     return localStorage.getItem('rol');
