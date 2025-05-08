@@ -75,6 +75,13 @@ export class AceptarRutaModalComponent implements OnInit {
 
   // Método que se ejecuta cuando se confirma el modal
   confirmar(): void {
+    if (!this.despachos || this.despachos.length === 0) {
+      alert(
+        'Los despachos aún no están cargados. Por favor espera unos segundos.'
+      );
+      return;
+    }
+
     const formatoPatente = /^[A-Z]{2}-[A-Z]{2}-\d{2}$/; // Expresión regular para validar el formato
 
     // Validación: campo vacío
@@ -106,11 +113,8 @@ export class AceptarRutaModalComponent implements OnInit {
 
     // Actualiza cada despacho con la fecha y hora de despacho
     this.despachos.forEach((despacho) => {
-      // Si ya tiene fecha/hora de despacho, no se actualiza
-      if (despacho.fechaDespacho || despacho.horaDespacho) {
-        console.log(
-          `Despacho ${despacho._id} ya tiene fecha/hora asignada. No se sobreescribe.`
-        );
+      console.log(despacho);
+      if (despacho.horaDespacho) {
         return;
       }
 
@@ -119,11 +123,10 @@ export class AceptarRutaModalComponent implements OnInit {
         horaDespacho: ahora,
       };
 
+      // Envía los datos al backend para persistencia
       this.authService.setDataDistpatch(despacho._id, payload).subscribe({
         next: () => {
-          console.log(
-            ` Despacho ${despacho._id} actualizado con fecha/hora de despacho`
-          );
+          console.log(` Despacho ${despacho._id} actualizado`);
         },
         error: (err) => {
           console.error(` Error al actualizar despacho ${despacho._id}:`, err);

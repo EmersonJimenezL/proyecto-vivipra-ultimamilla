@@ -23,7 +23,7 @@ export const routes: Routes = [
       import('./pages/available-view/available-view.component').then(
         (m) => m.AvailableViewComponent
       ),
-    canActivate: [authGuard(['bodega'])],
+    canActivate: [authGuard(['admin', 'bodega'])],
   },
   {
     path: 'dispatch-view',
