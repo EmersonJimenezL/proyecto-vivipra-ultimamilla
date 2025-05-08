@@ -106,15 +106,24 @@ export class AceptarRutaModalComponent implements OnInit {
 
     // Actualiza cada despacho con la fecha y hora de despacho
     this.despachos.forEach((despacho) => {
+      // Si ya tiene fecha/hora de despacho, no se actualiza
+      if (despacho.fechaDespacho || despacho.horaDespacho) {
+        console.log(
+          `Despacho ${despacho._id} ya tiene fecha/hora asignada. No se sobreescribe.`
+        );
+        return;
+      }
+
       const payload = {
         fechaDespacho: ahora,
         horaDespacho: ahora,
       };
 
-      // Envía los datos al backend para persistencia
       this.authService.setDataDistpatch(despacho._id, payload).subscribe({
         next: () => {
-          console.log(` Despacho ${despacho._id} actualizado`);
+          console.log(
+            ` Despacho ${despacho._id} actualizado con fecha/hora de despacho`
+          );
         },
         error: (err) => {
           console.error(` Error al actualizar despacho ${despacho._id}:`, err);
