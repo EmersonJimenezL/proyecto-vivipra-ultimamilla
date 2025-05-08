@@ -21,7 +21,7 @@
 <div class="section-title">Selecciona el chofer:</div>
 <mat-form-field appearance="fill">
   <mat-label>Chofer</mat-label>
-  <mat-select [(ngModel)]="choferSeleccionado">
+  <mat-select placeholder="Chofer" [(ngModel)]="choferSeleccionado">
     <mat-option
       *ngFor="let chofer of choferesDisponibles"
       [value]="chofer.nombreUsuario"

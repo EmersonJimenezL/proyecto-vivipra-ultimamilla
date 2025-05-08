@@ -30,7 +30,8 @@ export class AsignarDespachoModalComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<AsignarDespachoModalComponent>, // Control del modal
-    @Inject(MAT_DIALOG_DATA) public data: { folio: string }, // Recibe el folio del despacho
+    @Inject(MAT_DIALOG_DATA)
+    public data: { folio: string; choferesBloqueados: string[] }, // Recibe el folio del despacho
     private authService: AuthService // Servicio para obtener usuarios
   ) {}
 
@@ -40,7 +41,9 @@ export class AsignarDespachoModalComponent implements OnInit {
       next: (usuarios) => {
         // Filtra los usuarios que tienen rol "chofer"
         this.choferesDisponibles = usuarios.filter(
-          (u: any) => u.rol === 'chofer'
+          (u: any) =>
+            u.rol === 'chofer' &&
+            !this.data.choferesBloqueados.includes(u.nombreUsuario)
         );
       },
       error: (err) => console.error('Error al cargar usuarios:', err),

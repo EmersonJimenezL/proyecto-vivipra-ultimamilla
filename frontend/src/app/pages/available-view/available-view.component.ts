@@ -41,7 +41,6 @@ import { Router } from '@angular/router';
   styleUrl: './available-view.component.scss',
 })
 export class AvailableViewComponent implements OnInit {
-  // Columnas a mostrar en la tabla de datos
   displayedColumns: string[] = [
     'select',
     'FolioNum',
@@ -53,12 +52,16 @@ export class AvailableViewComponent implements OnInit {
     'Comentarios',
   ];
 
-  dataSource = new MatTableDataSource<any>([]); // Fuente de datos de la tabla
-  selection = new SelectionModel<any>(true, []); // Selección múltiple de filas
-  despachosExistentes: Set<string> = new Set(); // Set para evitar reinsertar folios ya despachados
+  dataSource = new MatTableDataSource<any>([]);
+  selection = new SelectionModel<any>(true, []);
+  despachosExistentes: Set<string> = new Set();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator; // Control de paginación
-  @ViewChild(MatSort) sort!: MatSort; // Control de ordenamiento
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  rutaActiva: boolean = false;
+  rutaBloqueada: boolean = false;
+  choferesConRutaActiva: string[] = [];
 
   constructor(
     private authService: AuthService,
@@ -67,14 +70,56 @@ export class AvailableViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.chargeData(); // Carga los datos al iniciar el componente
+    this.chargeData();
+    this.verificarRutasActivas();
+    if (this.rutaBloqueada) {
+      alert(
+        'La ruta ha sido bloqueada porque un chofer inició el despacho. No se pueden asignar más pedidos hasta que finalice.'
+      );
+    }
   }
 
-  // Carga los datos desde Mongo y la vista SAP, luego los filtra y transforma
+  verificarRutasActivas(): void {
+    Promise.all([
+      this.authService.getDataDispatch().toPromise(),
+      this.authService.getDataUser().toPromise(),
+    ])
+      .then(([despachos, usuarios]) => {
+        const choferesValidos = usuarios
+          .filter((u: any) => u.rol === 'chofer')
+          .map((u: any) => u.nombreUsuario);
+
+        const despachosActivosValidos = despachos.filter(
+          (d: any) =>
+            d.estado === 'Despacho' &&
+            choferesValidos.includes(d.chofer) &&
+            d.fechaDespacho // solo si el chofer inició efectivamente la ruta
+        );
+
+        this.choferesConRutaActiva = despachosActivosValidos.map(
+          (d: any) => d.chofer
+        );
+        this.choferesConRutaActiva = despachosActivosValidos.map(
+          (d: any) => d.chofer
+        );
+      })
+      .catch((error) => {
+        console.error('Error al verificar rutas activas con usuarios:', error);
+      });
+  }
+
+  iniciarAsignacionRuta(): void {
+    if (this.rutaBloqueada) return;
+    this.rutaActiva = true;
+  }
+
+  finalizarAsignacionRuta(): void {
+    this.rutaActiva = false;
+  }
+
   chargeData(): void {
     this.authService.getDataDispatch().subscribe({
       next: (despachosMongo) => {
-        // Extrae los folios ya asignados como despacho para filtrarlos
         const foliosDespachados = new Set(
           despachosMongo
             .map((d: any) => Number(d.folio))
@@ -83,7 +128,6 @@ export class AvailableViewComponent implements OnInit {
 
         this.authService.getData().subscribe({
           next: (dataVista) => {
-            // Transforma hora de creación a formato completo con fecha
             dataVista.forEach((item: any) => {
               const fecha = new Date(item.FechaDocumento);
               const padded = item.HoraCreacion.toString().padStart(6, '0');
@@ -91,18 +135,15 @@ export class AvailableViewComponent implements OnInit {
               const minutos = parseInt(padded.substring(2, 4), 10);
               const segundos = parseInt(padded.substring(4, 6), 10);
               fecha.setHours(horas, minutos, segundos);
-              item._fechaHoraCompleta = fecha; // Campo auxiliar para ordenar
+              item._fechaHoraCompleta = fecha;
             });
 
-            // Filtra los datos para excluir los ya despachados
             const datosFiltrados = dataVista.filter(
               (item: any) => !foliosDespachados.has(Number(item.FolioNum))
             );
 
-            // Asigna y configura la fuente de datos
             this.dataSource = new MatTableDataSource(datosFiltrados);
 
-            // Establece cómo ordenar por la fecha completa
             this.dataSource.sortingDataAccessor = (item, property) => {
               if (property === 'FechaDocumento') {
                 return item._fechaHoraCompleta;
@@ -111,8 +152,6 @@ export class AvailableViewComponent implements OnInit {
             };
 
             this.dataSource.sort = this.sort;
-
-            // Ordenamiento por defecto: fecha descendente
             setTimeout(() => {
               this.sort.active = 'FechaDocumento';
               this.sort.direction = 'desc';
@@ -133,13 +172,11 @@ export class AvailableViewComponent implements OnInit {
     });
   }
 
-  // Filtro para la tabla en tiempo real
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  // Verifica si todas las filas visibles están seleccionadas
   isAllSelected() {
     const filteredData = this.dataSource.filteredData;
     return (
@@ -148,7 +185,6 @@ export class AvailableViewComponent implements OnInit {
     );
   }
 
-  // Selecciona o deselecciona todas las filas visibles
   toggleAllRows(event: any) {
     const filteredData = this.dataSource.filteredData;
     if (event.checked) {
@@ -158,30 +194,29 @@ export class AvailableViewComponent implements OnInit {
     }
   }
 
-  // Alterna la selección de una sola fila
   toggleRow(row: any) {
     this.selection.toggle(row);
   }
 
-  // Asigna los elementos seleccionados como despachos mediante un modal
   async addToDispatch() {
     const selected = this.selection.selected;
-    if (selected.length === 0) return;
+    if (selected.length === 0 || !this.rutaActiva) return;
 
     const requests: Promise<any>[] = [];
     const foliosExitosos: string[] = [];
 
     for (const item of selected) {
-      // Abre el modal para seleccionar tipo de entrega y chofer
       const result = await this.dialog
         .open(AsignarDespachoModalComponent, {
-          data: { folio: item.FolioNum },
+          data: {
+            folio: item.FolioNum,
+            choferesBloqueados: this.choferesConRutaActiva,
+          },
           disableClose: true,
         })
         .afterClosed()
         .toPromise();
 
-      // Si el usuario cancela, pasa al siguiente ítem
       if (!result) {
         alert(
           `Asignación cancelada para el despacho con folio ${item.FolioNum}.`
@@ -189,7 +224,6 @@ export class AvailableViewComponent implements OnInit {
         continue;
       }
 
-      // Prepara el payload a enviar al backend
       const payload = {
         folio: item.FolioNum,
         nombreCliente: item.NombreCliente,
@@ -197,14 +231,11 @@ export class AvailableViewComponent implements OnInit {
         estado: 'Despacho',
         direccion: item.Direccion,
         comentarioDespacho: item.Comentarios,
-        //fechaAsignacion: fechaFormateada,
-        //horaAsignacion: horaFormateada,
         tipoEntrega: result.tipoEntrega,
         chofer: result.chofer,
         asignadoPor: this.authService.getNombreUsuario(),
       };
 
-      // Agrega la petición a la lista de promesas
       requests.push(
         firstValueFrom(this.authService.saveData(payload)).then(() => {
           foliosExitosos.push(item.FolioNum);
@@ -221,7 +252,6 @@ export class AvailableViewComponent implements OnInit {
         );
       }
 
-      // Elimina los ítems ya despachados de la tabla
       foliosExitosos.forEach((folio) => {
         this.despachosExistentes.add(folio);
       });
@@ -231,6 +261,9 @@ export class AvailableViewComponent implements OnInit {
       this.dataSource.data = this.dataSource.data.filter(
         (item: any) => !this.despachosExistentes.has(item.FolioNum)
       );
+
+      // Revalidar rutas activas de forma reactiva
+      this.verificarRutasActivas();
     } catch (err) {
       console.error('Error al guardar despachos:', err);
       alert(
@@ -239,7 +272,6 @@ export class AvailableViewComponent implements OnInit {
     }
   }
 
-  // Cierra sesión y redirige al login
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
