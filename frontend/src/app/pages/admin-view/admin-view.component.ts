@@ -53,11 +53,8 @@ export class AdminViewComponent implements OnInit {
     'patente',
     'asignadoPor',
     'fechaAsignacion',
-    'horaAsignacion',
     'fechaDespacho',
-    'horaDespacho',
     'fechaEntrega',
-    'horaEntrega',
     'comentarioEntrega',
     'imagenEntrega',
   ];

@@ -93,39 +93,33 @@
       <ng-container matColumnDef="fechaAsignacion">
         <th mat-header-cell *matHeaderCellDef>Fecha asignación</th>
         <td mat-cell *matCellDef="let despacho">
+          <i>Fecha:</i>
           {{ despacho.fechaAsignacion | date : "shortDate" }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="horaAsignacion">
-        <th mat-header-cell *matHeaderCellDef>Hora asignación</th>
-        <td mat-cell *matCellDef="let despacho">
-          {{ despacho.horaAsignacion }}
+          <i>Hora:</i>
+          {{
+            despacho.horaAsignacion ? despacho.horaAsignacion : "Sin registro"
+          }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="fechaDespacho">
         <th mat-header-cell *matHeaderCellDef>Fecha despacho</th>
         <td mat-cell *matCellDef="let despacho">
+          <i>Fecha:</i>
           {{ despacho.fechaDespacho | date : "shortDate" }}
+          <i>Hora:</i>
+          {{ despacho.horaDespacho ? despacho.horaDespacho : "Sin registro" }}
         </td>
-      </ng-container>
-
-      <ng-container matColumnDef="horaDespacho">
-        <th mat-header-cell *matHeaderCellDef>Hora despacho</th>
-        <td mat-cell *matCellDef="let despacho">{{ despacho.horaDespacho }}</td>
       </ng-container>
 
       <ng-container matColumnDef="fechaEntrega">
         <th mat-header-cell *matHeaderCellDef>Fecha entrega</th>
         <td mat-cell *matCellDef="let despacho">
+          <i>Fecha:</i>
           {{ despacho.fechaEntrega | date : "shortDate" }}
+          <i>Hora:</i>
+          {{ despacho.horaEntrega ? despacho.horaEntrega : "No hay" }}
         </td>
-      </ng-container>
-
-      <ng-container matColumnDef="horaEntrega">
-        <th mat-header-cell *matHeaderCellDef>Hora entrega</th>
-        <td mat-cell *matCellDef="let despacho">{{ despacho.horaEntrega }}</td>
       </ng-container>
 
       <ng-container matColumnDef="comentarioEntrega">
