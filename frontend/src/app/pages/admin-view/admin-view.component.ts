@@ -190,8 +190,8 @@ export class AdminViewComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  eliminarDespacho(folio: number) {
-    this.authService.deleteDispatch(folio).subscribe({
+  eliminarDespacho(id: string) {
+    this.authService.deleteDispatch(id).subscribe({
       next: () => {
         this.chargeData();
         this.chargeDespachosActivos();
