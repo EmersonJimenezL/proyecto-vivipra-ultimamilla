@@ -1,13 +1,1 @@
 @use "../../shared/scss/shared-styles.scss" as *;
-
-.mat-table {
-  table-layout: fixed;
-  width: 100%;
-}
-
-.mat-header-cell,
-.mat-cell {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}

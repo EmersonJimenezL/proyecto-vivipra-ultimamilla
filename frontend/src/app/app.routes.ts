@@ -28,12 +28,12 @@ export const routes: Routes = [
   {
     path: 'dispatch-view',
     component: DispatchViewComponent,
-    canActivate: [authGuard(['admin', 'chofer'])],
+    canActivate: [authGuard(['chofer'])],
   },
   {
     path: 'delivered-form',
     component: DeliveredFormComponent,
-    canActivate: [authGuard(['admin', 'chofer'])],
+    canActivate: [authGuard(['chofer'])],
   },
   {
     path: 'modal-map',

@@ -1,4 +1,4 @@
-// Estilos para la barra de busqueda
+// Estilos para la barra de búsqueda
 .search-bar-container {
   display: flex;
   flex-direction: row;
@@ -16,20 +16,13 @@
 }
 
 :host {
-  // El metodo ng-deep es una forma de aplicar estilos a componentes hijos en Angular Material
-  // que no tienen un selector específico para el estilo deseado.
-  // Aun que actualmente se encuentra deprecado, se puede seguir utilizando.
-  // Se recomienda usarlo con precaución y considerar alternativas en el futuro.
-  // https://angular.io/guide/component-styles#deprecated-ng-deep
-  // a dia de hoy (2023-10-01) no hay una alternativa oficial para reemplazarlo.
-  // por lo que se recomienda usarlo solo si es necesario y no hay otra opción.
   ::ng-deep .mat-form-field-outline {
     border-color: #ccc;
     border-radius: 12px;
   }
 
   ::ng-deep .mat-form-field-outline-thick {
-    border-color: #ff9800 !important; // Naranja moderno
+    border-color: #ff9800 !important;
   }
 
   ::ng-deep .mat-input-element {
@@ -51,7 +44,7 @@
   }
 
   ::ng-deep .mat-button {
-    background-color: #ff9800 !important; // Naranja moderno
+    background-color: #ff9800 !important;
     color: #fff !important;
   }
 }
@@ -64,16 +57,18 @@ table {
   border-collapse: collapse;
 
   th {
-    background-color: #424242;
-    color: #fff;
+    background-color: #212121;
+    color: #ffffff;
     font-weight: 600;
-    text-align: left;
-    padding: 0.55rem;
     text-align: center;
+    padding: 0.75rem;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
   }
 
   td {
-    padding: 0.64rem;
+    padding: 0.7rem;
     font-size: 0.95rem;
     color: #000;
     text-align: center;
@@ -88,6 +83,26 @@ table {
   tr:nth-child(odd) td {
     background-color: #ffffff;
   }
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-transform: uppercase;
+  border-left: 6px solid #ff9800;
+  padding-left: 10px;
+  margin-bottom: 0.5rem;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #424242;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding-left: 10px;
+  border-left: 4px solid #ffb74d;
 }
 
 :host ::ng-deep button {
@@ -120,5 +135,5 @@ table {
 
 .dButton {
   color: #fff !important;
-  background-color: #ff9800 !important; // Naranja moderno
+  background-color: #ff9800 !important;
 }
