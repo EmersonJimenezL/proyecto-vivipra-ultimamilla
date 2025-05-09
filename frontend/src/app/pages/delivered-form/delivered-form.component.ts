@@ -225,4 +225,34 @@ export class DeliveredFormComponent implements OnInit, AfterViewInit {
     localStorage.clear();
     this.router.navigate(['/login']);
   }
+
+  formatearRutEntrega(): void {
+    let rut: string = this.deliveredForm.get('rutEntrega')?.value || '';
+
+    // Elimina todo lo que no sea número o letra K/k
+    rut = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+
+    // Limita a máximo 9 números + 1 DV
+    rut = rut.slice(0, 9);
+
+    if (rut.length < 2) return;
+
+    const cuerpo = rut.slice(0, -1);
+    const dv = rut.slice(-1);
+
+    // Formatea el cuerpo con puntos
+    let cuerpoFormateado = '';
+    let c = cuerpo;
+    while (c.length > 3) {
+      cuerpoFormateado = '.' + c.slice(-3) + cuerpoFormateado;
+      c = c.slice(0, -3);
+    }
+    cuerpoFormateado = c + cuerpoFormateado;
+
+    const rutFormateado = `${cuerpoFormateado}-${dv}`;
+
+    this.deliveredForm.get('rutEntrega')?.setValue(rutFormateado, {
+      emitEvent: false,
+    });
+  }
 }

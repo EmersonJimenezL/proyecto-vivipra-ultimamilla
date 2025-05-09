@@ -43,7 +43,13 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>RUT</mat-label>
-      <input matInput formControlName="rutEntrega" />
+      <input
+        matInput
+        formControlName="rutEntrega"
+        (input)="formatearRutEntrega()"
+        placeholder="Ej: 12.345.678-9"
+      />
+
       <mat-error
         *ngIf="deliveredForm.get('rutEntrega')?.hasError('rutInvalido')"
       >
