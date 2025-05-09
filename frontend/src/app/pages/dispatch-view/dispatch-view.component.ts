@@ -83,6 +83,11 @@ export class DispatchViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.verificarRutaActiva();
+    setInterval(() => {
+      this.verificarRutaActiva();
+    }, 10000);
+
     // Detecta si el usuario está en un dispositivo móvil
     this.breakpointObserver
       .observe([Breakpoints.Handset])
@@ -92,6 +97,29 @@ export class DispatchViewComponent implements OnInit {
 
     // Carga de datos desde backend
     this.getData();
+  }
+
+  verificarRutaActiva(): void {
+    const choferId = localStorage.getItem('nombre');
+
+    if (!choferId) return;
+
+    this.authService.getDataDispatch().subscribe({
+      next: (despachos: any[]) => {
+        const pendientes = despachos.filter(
+          (d) => d.chofer === choferId && d.estado === 'Despacho'
+        );
+
+        if (pendientes.length === 0) {
+          alert('¡Has completado todos tus despachos! Tu sesión será cerrada.');
+          localStorage.clear();
+          this.router.navigate(['/login']);
+        }
+      },
+      error: (err) => {
+        console.error('Error al verificar ruta activa:', err);
+      },
+    });
   }
 
   // Lógica para obtener despachos, filtrarlos si es chofer y configurar tabla

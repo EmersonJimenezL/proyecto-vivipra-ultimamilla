@@ -6,7 +6,7 @@ import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth.service';
-
+import { RutaAsignacionService } from '../../services/ruta-asignacion.service';
 @Component({
   selector: 'app-aceptar-ruta-modal', // Selector del modal
   standalone: true, // Componente independiente (standalone)
@@ -26,7 +26,8 @@ export class AceptarRutaModalComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<AceptarRutaModalComponent>, // Referencia para cerrar el modal
-    private authService: AuthService // Servicio de autenticación y datos
+    private authService: AuthService, // Servicio de autenticación y datos
+    private rutaAsignacionService: RutaAsignacionService
   ) {}
 
   ngOnInit(): void {
@@ -136,6 +137,7 @@ export class AceptarRutaModalComponent implements OnInit {
 
     // Cierra el modal indicando que se aceptó la ruta (true)
     this.dialogRef.close(true);
+    this.rutaAsignacionService.emitirAsignacionIniciada();
   }
 
   // Método que se ejecuta al cancelar el modal

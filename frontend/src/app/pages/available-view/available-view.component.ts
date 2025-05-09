@@ -77,7 +77,12 @@ export class AvailableViewComponent implements OnInit {
         'La ruta ha sido bloqueada porque un chofer inició el despacho. No se pueden asignar más pedidos hasta que finalice.'
       );
     }
+    setInterval(() => {
+      this.verificarRutasActivas();
+    }, 8000); // cada 8 segundos
   }
+
+  private bloqueoNotificado = false;
 
   verificarRutasActivas(): void {
     Promise.all([
@@ -92,16 +97,26 @@ export class AvailableViewComponent implements OnInit {
         const despachosActivosValidos = despachos.filter(
           (d: any) =>
             d.estado === 'Despacho' &&
-            choferesValidos.includes(d.chofer) &&
-            d.fechaDespacho // solo si el chofer inició efectivamente la ruta
+            d.fechaDespacho &&
+            choferesValidos.includes(d.chofer)
         );
 
         this.choferesConRutaActiva = despachosActivosValidos.map(
           (d: any) => d.chofer
         );
-        this.choferesConRutaActiva = despachosActivosValidos.map(
-          (d: any) => d.chofer
-        );
+
+        // Mostrar el mensaje solo una vez si hay bloqueo
+        if (this.choferesConRutaActiva.length > 0 && !this.bloqueoNotificado) {
+          alert(
+            'Uno o más choferes ya iniciaron su ruta. No se les puede asignar más despachos.'
+          );
+          this.bloqueoNotificado = true;
+        }
+
+        // Resetear si ya no hay rutas activas
+        if (this.choferesConRutaActiva.length === 0) {
+          this.bloqueoNotificado = false;
+        }
       })
       .catch((error) => {
         console.error('Error al verificar rutas activas con usuarios:', error);
