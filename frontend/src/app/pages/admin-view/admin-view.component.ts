@@ -119,9 +119,6 @@ export class AdminViewComponent implements OnInit {
         entregados.forEach((d: any) => {
           const inicio = d.fechaAsignacion ? new Date(d.fechaAsignacion) : null;
           const fin = d.fechaEntrega ? new Date(d.fechaEntrega) : null;
-
-          console.log('inicio:', inicio, 'fin:', fin);
-
           d.tiempoTranscurrido = this.calcularDiferencia(inicio, fin);
         });
 
@@ -150,8 +147,8 @@ export class AdminViewComponent implements OnInit {
           d.estado === 'Despacho' && usuariosChoferes.includes(d.chofer)
       );
 
-      console.log('usuarios choferes', usuariosChoferes);
-      console.log('Despachos', activos);
+      // console.log('usuarios choferes', usuariosChoferes);
+      // console.log('Despachos', activos);
 
       const agrupados: { [chofer: string]: any[] } = {};
       activos.forEach((despacho: any) => {

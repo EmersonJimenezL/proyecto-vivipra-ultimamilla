@@ -6,6 +6,9 @@ import { Observable, map } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
+  // endpoint para el login
+  private endPointLogin = 'http://192.168.200.80:3005/usuarios/login';
+
   // Se una variable con la url de la vista conectada con SAPHanna
   private endPointView = 'http://192.168.200.80:3000/data/FactDespacho';
 
@@ -75,26 +78,17 @@ export class AuthService {
     return localStorage.getItem('nombre');
   }
 
-  // estas fuuncionalidades estaran destinadas al login de la pagina
-  login(nombre_usuario: string, contrasenna: string): Observable<any> {
-    return this.http.get<any[]>(this.endPointUser).pipe(
-      map((usuarios) => {
-        const usuarioEncontrado = usuarios.find(
-          (u: any) =>
-            u.nombreUsuario === nombre_usuario && u.password === contrasenna
-        );
+  login(nombreUsuario: string, password: string) {
+    return this.http.post<any>(this.endPointLogin, {
+      nombreUsuario,
+      password,
+    });
+  }
 
-        if (usuarioEncontrado) {
-          localStorage.setItem('nombre', usuarioEncontrado.nombreUsuario);
-          localStorage.setItem('token', 'falso-token'); // token de prueba
-          localStorage.setItem('rol', usuarioEncontrado.rol);
-          localStorage.setItem('userId', usuarioEncontrado._id);
-          return usuarioEncontrado;
-        } else {
-          throw new Error('Credenciales incorrectas');
-        }
-      })
-    );
+  setSession(usuario: any) {
+    localStorage.setItem('rol', usuario.rol);
+    localStorage.setItem('userId', usuario.nombreUsuario);
+    localStorage.setItem('nombre', usuario.nombreUsuario);
   }
 
   logout() {
@@ -105,7 +99,8 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    // Como no usamos token aún, validamos por rol
+    return !!localStorage.getItem('rol');
   }
 
   getToken(): string | null {
